@@ -1,25 +1,23 @@
 import React from 'react';
 import { View, Text, FlatList, StyleSheet } from 'react-native';
 import { colors, spacing, fontSizes } from '../theme/theme';
-
-// Mock temporário — o próximo passo é ligar isso a um estado global
-// (Context ou API) para refletir os agendamentos feitos de verdade.
-const agendamentosMock = [
-  { id: '1', servico: 'Renovação de CNH', unidade: 'Detran Maceió - Centro', data: '02/09/2026' },
-];
+import { useAgendamentos } from '../context/AgendamentosContext';
 
 export default function MeusAgendamentosScreen() {
+  const { agendamentos } = useAgendamentos();
+
   return (
     <View style={styles.container}>
-      {agendamentosMock.length === 0 ? (
+      {agendamentos.length === 0 ? (
         <Text style={styles.vazio}>Você ainda não tem agendamentos.</Text>
       ) : (
         <FlatList
-          data={agendamentosMock}
+          data={agendamentos}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <View style={styles.card}>
               <Text style={styles.cardTitulo}>{item.servico}</Text>
+              <Text style={styles.cardSubtitulo}>{item.detalhe}</Text>
               <Text style={styles.cardSubtitulo}>{item.unidade}</Text>
               <Text style={styles.cardData}>{item.data}</Text>
             </View>
