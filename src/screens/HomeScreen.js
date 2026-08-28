@@ -33,7 +33,7 @@ export default function HomeScreen({ navigation }) {
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.card}
-            onPress={() => navigation.navigate('Agendamento', { servico: item })}
+            onPress={() => navigation.navigate(item.rota, { servico: item })}
           >
             <Text style={styles.icone}>{item.icone}</Text>
             <View style={{ flex: 1 }}>
