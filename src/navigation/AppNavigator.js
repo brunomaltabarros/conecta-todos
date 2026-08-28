@@ -7,7 +7,10 @@ import { colors } from '../theme/theme';
 
 import LoginScreen from '../screens/LoginScreen';
 import HomeScreen from '../screens/HomeScreen';
-import AgendamentoScreen from '../screens/AgendamentoScreen';
+import EmissaoCnhScreen from '../screens/EmissaoCnhScreen';
+import RenovacaoCnhScreen from '../screens/RenovacaoCnhScreen';
+import TransferenciaVeiculoScreen from '../screens/TransferenciaVeiculoScreen';
+import SegundaViaScreen from '../screens/SegundaViaScreen';
 import MeusAgendamentosScreen from '../screens/MeusAgendamentosScreen';
 
 const Stack = createNativeStackNavigator();
@@ -32,21 +35,12 @@ export default function AppNavigator() {
           />
         ) : (
           <>
-            <Stack.Screen
-              name="Home"
-              component={HomeScreen}
-              options={{ title: 'ConectaTodos' }}
-            />
-            <Stack.Screen
-              name="Agendamento"
-              component={AgendamentoScreen}
-              options={{ title: 'Novo Agendamento' }}
-            />
-            <Stack.Screen
-              name="MeusAgendamentos"
-              component={MeusAgendamentosScreen}
-              options={{ title: 'Meus Agendamentos' }}
-            />
+            <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'ConectaTodos' }} />
+            <Stack.Screen name="EmissaoCnh" component={EmissaoCnhScreen} options={{ title: 'Emissão de CNH' }} />
+            <Stack.Screen name="RenovacaoCnh" component={RenovacaoCnhScreen} options={{ title: 'Renovação de CNH' }} />
+            <Stack.Screen name="TransferenciaVeiculo" component={TransferenciaVeiculoScreen} options={{ title: 'Transferência de Veículo' }} />
+            <Stack.Screen name="SegundaVia" component={SegundaViaScreen} options={{ title: 'Segunda Via' }} />
+            <Stack.Screen name="MeusAgendamentos" component={MeusAgendamentosScreen} options={{ title: 'Meus Agendamentos' }} />
           </>
         )}
       </Stack.Navigator>
