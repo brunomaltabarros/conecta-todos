@@ -1,23 +1,33 @@
 import React from 'react';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { formatarData } from '../utils/validation';
 import { colors, spacing, fontSizes, radius } from '../theme/theme';
 
-export default function CampoData({ data, setData, erro }) {
+export default function CampoTexto({
+  label,
+  icone,
+  value,
+  onChangeText,
+  erro,
+  placeholder,
+  keyboardType = 'default',
+  autoCapitalize = 'sentences',
+  maxLength,
+}) {
   return (
     <>
-      <Text style={styles.label}>Data desejada</Text>
+      <Text style={styles.label}>{label}</Text>
       <View style={[styles.inputWrapper, erro && styles.inputError]}>
-        <Ionicons name="calendar-outline" size={18} color={colors.textLight} style={styles.inputIcone} />
+        <Ionicons name={icone} size={18} color={colors.textLight} style={styles.inputIcone} />
         <TextInput
           style={styles.input}
-          placeholder="dd/mm/aaaa"
+          placeholder={placeholder}
           placeholderTextColor={colors.textLight}
-          value={data}
-          onChangeText={(texto) => setData(formatarData(texto))}
-          keyboardType="numeric"
-          maxLength={10}
+          value={value}
+          onChangeText={onChangeText}
+          keyboardType={keyboardType}
+          autoCapitalize={autoCapitalize}
+          maxLength={maxLength}
         />
       </View>
       {erro && <Text style={styles.erroTexto}>{erro}</Text>}

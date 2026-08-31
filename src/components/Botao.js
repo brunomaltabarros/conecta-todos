@@ -1,10 +1,14 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
-import { colors, spacing, fontSizes } from '../theme/theme';
+import { colors, spacing, fontSizes, radius, shadow } from '../theme/theme';
 
 export default function Botao({ titulo, onPress, cor = colors.secondary }) {
   return (
-    <TouchableOpacity style={[styles.botao, { backgroundColor: cor }]} onPress={onPress}>
+    <TouchableOpacity
+      style={[styles.botao, { backgroundColor: cor }, shadow.card]}
+      onPress={onPress}
+      activeOpacity={0.85}
+    >
       <Text style={styles.botaoTexto}>{titulo}</Text>
     </TouchableOpacity>
   );
@@ -12,7 +16,7 @@ export default function Botao({ titulo, onPress, cor = colors.secondary }) {
 
 const styles = StyleSheet.create({
   botao: {
-    borderRadius: 10,
+    borderRadius: radius.md,
     padding: spacing.md,
     alignItems: 'center',
     marginTop: spacing.md,

@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
+import { StyleSheet, ScrollView, Alert } from 'react-native';
 
 import { validarCampoObrigatorio, validarData } from '../utils/validation';
-import { colors, spacing, fontSizes } from '../theme/theme';
+import { colors, spacing } from '../theme/theme';
 import Botao from '../components/Botao';
+import CabecalhoServico from '../components/CabecalhoServico';
+import SeletorOpcoes from '../components/SeletorOpcoes';
 import SeletorUnidade from '../components/SeletorUnidade';
 import CampoData from '../components/CampoData';
 import { useAgendamentos } from '../context/AgendamentosContext';
@@ -39,21 +41,9 @@ export default function EmissaoCnhScreen({ route, navigation }) {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ padding: spacing.md }}>
-      <Text style={styles.titulo}>{servico.icone} {servico.nome}</Text>
-      <Text style={styles.subtitulo}>{servico.orgao} · duração estimada {servico.duracao}</Text>
+      <CabecalhoServico servico={servico} />
 
-      <Text style={styles.label}>Categoria desejada</Text>
-      {categorias.map((c) => (
-        <TouchableOpacity
-          key={c}
-          style={[styles.opcao, categoria === c && styles.opcaoSelecionada]}
-          onPress={() => setCategoria(c)}
-        >
-          <Text style={[styles.opcaoTexto, categoria === c && styles.opcaoTextoSelecionado]}>{c}</Text>
-        </TouchableOpacity>
-      ))}
-      {erros.categoria && <Text style={styles.erroTexto}>{erros.categoria}</Text>}
-
+      <SeletorOpcoes label="Categoria desejada" opcoes={categorias} valor={categoria} setValor={setCategoria} erro={erros.categoria} />
       <SeletorUnidade unidade={unidade} setUnidade={setUnidade} erro={erros.unidade} />
       <CampoData data={data} setData={setData} erro={erros.data} />
 
@@ -64,19 +54,4 @@ export default function EmissaoCnhScreen({ route, navigation }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
-  titulo: { fontSize: fontSizes.xl, fontWeight: 'bold', color: colors.text },
-  subtitulo: { fontSize: fontSizes.sm, color: colors.textLight, marginBottom: spacing.lg },
-  label: { fontSize: fontSizes.md, fontWeight: '600', color: colors.text, marginTop: spacing.md, marginBottom: spacing.xs },
-  opcao: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 10,
-    padding: spacing.md,
-    marginBottom: spacing.xs,
-    backgroundColor: colors.card,
-  },
-  opcaoSelecionada: { borderColor: colors.primary, backgroundColor: '#EAF3F7' },
-  opcaoTexto: { color: colors.text },
-  opcaoTextoSelecionado: { color: colors.primary, fontWeight: '600' },
-  erroTexto: { color: colors.danger, fontSize: fontSizes.sm, marginTop: spacing.xs },
 });

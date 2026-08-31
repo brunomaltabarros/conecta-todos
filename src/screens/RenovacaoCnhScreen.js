@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, ScrollView, Alert } from 'react-native';
+import { StyleSheet, ScrollView, Alert } from 'react-native';
 
 import { validarCampoObrigatorio, validarData } from '../utils/validation';
-import { colors, spacing, fontSizes } from '../theme/theme';
+import { colors, spacing } from '../theme/theme';
 import Botao from '../components/Botao';
+import CabecalhoServico from '../components/CabecalhoServico';
+import CampoTexto from '../components/CampoTexto';
 import SeletorUnidade from '../components/SeletorUnidade';
 import CampoData from '../components/CampoData';
 import { useAgendamentos } from '../context/AgendamentosContext';
@@ -37,19 +39,17 @@ export default function RenovacaoCnhScreen({ route, navigation }) {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ padding: spacing.md }}>
-      <Text style={styles.titulo}>{servico.icone} {servico.nome}</Text>
-      <Text style={styles.subtitulo}>{servico.orgao} · duração estimada {servico.duracao}</Text>
+      <CabecalhoServico servico={servico} />
 
-      <Text style={styles.label}>Número de registro da CNH</Text>
-      <TextInput
-        style={[styles.input, erros.registro && styles.inputError]}
+      <CampoTexto
+        label="Número de registro da CNH"
+        icone="document-text-outline"
         placeholder="Ex: 12345678900"
         value={registro}
         onChangeText={setRegistro}
         keyboardType="numeric"
+        erro={erros.registro}
       />
-      {erros.registro && <Text style={styles.erroTexto}>{erros.registro}</Text>}
-
       <SeletorUnidade unidade={unidade} setUnidade={setUnidade} erro={erros.unidade} />
       <CampoData data={data} setData={setData} erro={erros.data} />
 
@@ -60,17 +60,4 @@ export default function RenovacaoCnhScreen({ route, navigation }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
-  titulo: { fontSize: fontSizes.xl, fontWeight: 'bold', color: colors.text },
-  subtitulo: { fontSize: fontSizes.sm, color: colors.textLight, marginBottom: spacing.lg },
-  label: { fontSize: fontSizes.md, fontWeight: '600', color: colors.text, marginTop: spacing.md, marginBottom: spacing.xs },
-  input: {
-    backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 10,
-    padding: spacing.md,
-    fontSize: fontSizes.md,
-  },
-  inputError: { borderColor: colors.danger },
-  erroTexto: { color: colors.danger, fontSize: fontSizes.sm, marginTop: spacing.xs },
 });

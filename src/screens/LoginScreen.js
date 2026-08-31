@@ -5,12 +5,14 @@ import {
   TextInput,
   StyleSheet,
   KeyboardAvoidingView,
+  ScrollView,
   Platform,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 import { useAuth } from '../context/AuthContext';
 import { validarEmail, validarSenha } from '../utils/validation';
-import { colors, spacing, fontSizes } from '../theme/theme';
+import { colors, spacing, fontSizes, radius } from '../theme/theme';
 import Botao from '../components/Botao';
 
 export default function LoginScreen() {
@@ -35,61 +37,98 @@ export default function LoginScreen() {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <View style={styles.header}>
-        <Text style={styles.logo}>ConectaTodos</Text>
-        <Text style={styles.subtitle}>Agendamento de serviços públicos</Text>
-      </View>
+      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+        <View style={styles.header}>
+          <View style={styles.selo}>
+            <Ionicons name="calendar" size={30} color={colors.primary} />
+          </View>
+          <Text style={styles.logo}>
+            Conecta<Text style={styles.logoDestaque}>Todos</Text>
+          </Text>
+          <Text style={styles.subtitle}>Agendamento de atendimento em órgão público</Text>
+        </View>
 
-      <View style={styles.form}>
-        <Text style={styles.label}>E-mail</Text>
-        <TextInput
-          style={[styles.input, erros.email && styles.inputError]}
-          placeholder="seuemail@exemplo.com"
-          value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-          keyboardType="email-address"
-        />
-        {erros.email && <Text style={styles.erroTexto}>{erros.email}</Text>}
+        <View style={styles.form}>
+          <Text style={styles.titulo}>Entrar</Text>
 
-        <Text style={styles.label}>Senha</Text>
-        <TextInput
-          style={[styles.input, erros.senha && styles.inputError]}
-          placeholder="••••••••"
-          value={senha}
-          onChangeText={setSenha}
-          secureTextEntry
-        />
-        {erros.senha && <Text style={styles.erroTexto}>{erros.senha}</Text>}
+          <Text style={styles.label}>E-mail</Text>
+          <View style={[styles.inputWrapper, erros.email && styles.inputError]}>
+            <Ionicons name="mail-outline" size={18} color={colors.textLight} style={styles.inputIcone} />
+            <TextInput
+              style={styles.input}
+              placeholder="seuemail@exemplo.com"
+              placeholderTextColor={colors.textLight}
+              value={email}
+              onChangeText={setEmail}
+              autoCapitalize="none"
+              keyboardType="email-address"
+            />
+          </View>
+          {erros.email && <Text style={styles.erroTexto}>{erros.email}</Text>}
 
-        <Botao titulo="Entrar" onPress={handleLogin} />
-      </View>
+          <Text style={styles.label}>Senha</Text>
+          <View style={[styles.inputWrapper, erros.senha && styles.inputError]}>
+            <Ionicons name="lock-closed-outline" size={18} color={colors.textLight} style={styles.inputIcone} />
+            <TextInput
+              style={styles.input}
+              placeholder="••••••••"
+              placeholderTextColor={colors.textLight}
+              value={senha}
+              onChangeText={setSenha}
+              secureTextEntry
+            />
+          </View>
+          {erros.senha && <Text style={styles.erroTexto}>{erros.senha}</Text>}
+
+          <Botao titulo="Entrar" onPress={handleLogin} />
+
+          <Text style={styles.rodape}>
+            Serviço piloto: Detran-AL · CNH, transferência de veículo e vistoria
+          </Text>
+        </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.primary },
-  header: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  scroll: { flexGrow: 1 },
+  header: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop: spacing.xl, paddingBottom: spacing.xl },
+  selo: {
+    width: 64,
+    height: 64,
+    borderRadius: radius.pill,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: spacing.md,
+  },
   logo: { fontSize: fontSizes.xxl, fontWeight: 'bold', color: '#fff' },
-  subtitle: { fontSize: fontSizes.md, color: '#DCE7EE', marginTop: spacing.xs },
+  logoDestaque: { color: colors.secondary },
+  subtitle: { fontSize: fontSizes.md, color: '#DCE7EE', marginTop: spacing.xs, textAlign: 'center', paddingHorizontal: spacing.lg },
   form: {
     backgroundColor: colors.background,
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
+    borderTopLeftRadius: radius.lg,
+    borderTopRightRadius: radius.lg,
     padding: spacing.lg,
     paddingTop: spacing.xl,
   },
+  titulo: { fontSize: fontSizes.xl, fontWeight: 'bold', color: colors.text, marginBottom: spacing.md },
   label: { fontSize: fontSizes.md, color: colors.text, marginBottom: spacing.xs, fontWeight: '600' },
-  input: {
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: colors.card,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 10,
-    padding: spacing.md,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.md,
     marginBottom: spacing.sm,
-    fontSize: fontSizes.md,
   },
+  inputIcone: { marginRight: spacing.sm },
+  input: { flex: 1, paddingVertical: spacing.md, fontSize: fontSizes.md, color: colors.text },
   inputError: { borderColor: colors.danger },
   erroTexto: { color: colors.danger, fontSize: fontSizes.sm, marginBottom: spacing.sm },
+  rodape: { textAlign: 'center', color: colors.textLight, fontSize: fontSizes.sm, marginTop: spacing.lg },
 });
