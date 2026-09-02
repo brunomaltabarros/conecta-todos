@@ -69,23 +69,6 @@ export function AgendamentosProvider({ children }) {
     });
   }
 
-  return (
-    <AgendamentosContext.Provider
-      value={{
-        agendamentos,
-        unidadeIndisponivel,
-        tempoEsperaEstimado,
-        posicaoNaFila,
-        adicionarAgendamento,
-        entrarListaEspera,
-        cancelarAgendamento,
-      }}
-    >
-      {children}
-    </AgendamentosContext.Provider>
-  );
-}
-
-export function useAgendamentos() {
-  return useContext(AgendamentosContext);
-}
+  function finalizarAgendamento(id, feedback) {
+    setAgendamentos((atual) =>
+      atual.map((a) => (a.id === id ? { 
