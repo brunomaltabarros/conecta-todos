@@ -12,7 +12,7 @@ import { useAgendamentos } from '../context/AgendamentosContext';
 
 export default function RenovacaoCnhScreen({ route, navigation }) {
   const { servico } = route.params;
-  const { adicionarAgendamento } = useAgendamentos();
+  const { adicionarAgendamento, entrarListaEspera, unidadeIndisponivel } = useAgendamentos();
   const [unidade, setUnidade] = useState('');
   const [registro, setRegistro] = useState('');
   const [data, setData] = useState('');
@@ -25,16 +25,31 @@ export default function RenovacaoCnhScreen({ route, navigation }) {
     if (!validarData(data)) novosErros.data = 'Use o formato dd/mm/aaaa';
 
     setErros(novosErros);
-    if (Object.keys(novosErros).length === 0) {
-      adicionarAgendamento({
-        servico: servico.nome,
-        detalhe: `Registro: ${registro}`,
-        unidade,
-        data,
-      });
-      Alert.alert('Agendamento confirmado', `Renovação de CNH (registro ${registro}) em ${data} - ${unidade}`);
-      navigation.navigate('MeusAgendamentos');
+    if (Object.keys(novosErros).length > 0) return;
+
+    const dados = { servico: servico.nome, detalhe: `Registro: ${registro}`, unidade, data };
+
+    if (unidadeIndisponivel(unidade, data)) {
+      Alert.alert(
+        'Sem horário disponível',
+        `Não há vaga em ${unidade} para ${data}. Deseja entrar na lista de espera? Avisamos se abrir uma vaga por cancelamento.`,
+        [
+          { text: 'Escolher outra data', style: 'cancel' },
+          {
+            text: 'Entrar na lista de espera',
+            onPress: () => {
+              entrarListaEspera(dados);
+              navigation.navigate('MeusAgendamentos');
+            },
+          },
+        ]
+      );
+      return;
     }
+
+    adicionarAgendamento(dados);
+    Alert.alert('Agendamento confirmado', `Renovação de CNH (registro ${registro}) em ${data} - ${unidade}`);
+    navigation.navigate('MeusAgendamentos');
   }
 
   return (

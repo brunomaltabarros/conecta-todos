@@ -7,6 +7,7 @@ import { podeCancelar } from '../utils/validation';
 
 const statusInfo = {
   confirmado: { texto: 'Confirmado', cor: colors.success, fundo: '#E7F3EE' },
+  espera: { texto: 'Na lista de espera', cor: colors.secondary, fundo: '#FBEFE7' },
   cancelado: { texto: 'Cancelado', cor: colors.danger, fundo: '#FBEAEA' },
 };
 
@@ -14,12 +15,13 @@ export default function MeusAgendamentosScreen() {
   const { agendamentos, cancelarAgendamento } = useAgendamentos();
 
   function confirmarCancelamento(item) {
+    const saindoDaFila = item.status === 'espera';
     Alert.alert(
-      'Cancelar agendamento',
-      `Deseja realmente cancelar o agendamento de ${item.servico} em ${item.data}?`,
+      saindoDaFila ? 'Sair da lista de espera' : 'Cancelar agendamento',
+      `Deseja realmente ${saindoDaFila ? 'sair da lista de espera' : 'cancelar o agendamento'} de ${item.servico} em ${item.data}?`,
       [
-        { text: 'Manter agendamento', style: 'cancel' },
-        { text: 'Cancelar agendamento', style: 'destructive', onPress: () => cancelarAgendamento(item.id) },
+        { text: 'Voltar', style: 'cancel' },
+        { text: 'Confirmar', style: 'destructive', onPress: () => cancelarAgendamento(item.id) },
       ]
     );
   }
@@ -37,7 +39,8 @@ export default function MeusAgendamentosScreen() {
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => {
             const status = statusInfo[item.status] ?? statusInfo.confirmado;
-            const cancelavel = item.status === 'confirmado' && podeCancelar(item.data);
+            const emEspera = item.status === 'espera';
+            const cancelavel = emEspera || (item.status === 'confirmado' && podeCancelar(item.data));
             const bloqueado = item.status === 'confirmado' && !podeCancelar(item.data);
 
             return (
@@ -61,7 +64,9 @@ export default function MeusAgendamentosScreen() {
                 {cancelavel && (
                   <TouchableOpacity style={styles.cancelar} onPress={() => confirmarCancelamento(item)}>
                     <Ionicons name="close-circle-outline" size={16} color={colors.danger} />
-                    <Text style={styles.cancelarTexto}>Cancelar agendamento</Text>
+                    <Text style={styles.cancelarTexto}>
+                      {emEspera ? 'Sair da lista de espera' : 'Cancelar agendamento'}
+                    </Text>
                   </TouchableOpacity>
                 )}
                 {bloqueado && (
