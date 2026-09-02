@@ -12,7 +12,7 @@ const statusInfo = {
 };
 
 export default function MeusAgendamentosScreen() {
-  const { agendamentos, cancelarAgendamento } = useAgendamentos();
+  const { agendamentos, cancelarAgendamento, tempoEsperaEstimado, posicaoNaFila } = useAgendamentos();
 
   function confirmarCancelamento(item) {
     const saindoDaFila = item.status === 'espera';
@@ -40,8 +40,9 @@ export default function MeusAgendamentosScreen() {
           renderItem={({ item }) => {
             const status = statusInfo[item.status] ?? statusInfo.confirmado;
             const emEspera = item.status === 'espera';
-            const cancelavel = emEspera || (item.status === 'confirmado' && podeCancelar(item.data));
-            const bloqueado = item.status === 'confirmado' && !podeCancelar(item.data);
+            const confirmado = item.status === 'confirmado';
+            const cancelavel = emEspera || (confirmado && podeCancelar(item.data));
+            const bloqueado = confirmado && !podeCancelar(item.data);
 
             return (
               <View style={styles.card}>
@@ -60,6 +61,19 @@ export default function MeusAgendamentosScreen() {
                   <Ionicons name="calendar-outline" size={14} color={colors.primary} />
                   <Text style={styles.cardData}>{item.data}</Text>
                 </View>
+
+                {confirmado && (
+                  <View style={styles.linha}>
+                    <Ionicons name="hourglass-outline" size={14} color={colors.textLight} />
+                    <Text style={styles.cardSubtitulo}>Tempo de espera estimado: {tempoEsperaEstimado(item.unidade)}</Text>
+                  </View>
+                )}
+                {emEspera && (
+                  <View style={styles.linha}>
+                    <Ionicons name="people-outline" size={14} color={colors.secondary} />
+                    <Text style={styles.cardFila}>Você é o Nº {posicaoNaFila(item.id)} na lista de espera</Text>
+                  </View>
+                )}
 
                 {cancelavel && (
                   <TouchableOpacity style={styles.cancelar} onPress={() => confirmarCancelamento(item)}>
@@ -107,6 +121,7 @@ const styles = StyleSheet.create({
   linha: { flexDirection: 'row', alignItems: 'center', marginTop: 4, gap: 4 },
   cardSubtitulo: { fontSize: fontSizes.sm, color: colors.textLight, marginLeft: 4 },
   cardData: { fontSize: fontSizes.sm, color: colors.primary, fontWeight: '600', marginLeft: 4 },
+  cardFila: { fontSize: fontSizes.sm, color: colors.secondary, fontWeight: '600', marginLeft: 4 },
   cancelar: {
     flexDirection: 'row',
     alignItems: 'center',

@@ -1,14 +1,15 @@
 import React from 'react';
-import { Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, fontSizes, radius } from '../theme/theme';
 
-export default function SeletorOpcoes({ label, opcoes, valor, setValor, erro }) {
+export default function SeletorOpcoes({ label, opcoes, valor, setValor, erro, subtitulos }) {
   return (
     <>
       <Text style={styles.label}>{label}</Text>
       {opcoes.map((opcao) => {
         const selecionada = valor === opcao;
+        const subtitulo = subtitulos?.[opcao];
         return (
           <TouchableOpacity
             key={opcao}
@@ -16,7 +17,10 @@ export default function SeletorOpcoes({ label, opcoes, valor, setValor, erro }) 
             onPress={() => setValor(opcao)}
             activeOpacity={0.85}
           >
-            <Text style={[styles.opcaoTexto, selecionada && styles.opcaoTextoSelecionado]}>{opcao}</Text>
+            <View style={styles.opcaoConteudo}>
+              <Text style={[styles.opcaoTexto, selecionada && styles.opcaoTextoSelecionado]}>{opcao}</Text>
+              {subtitulo && <Text style={styles.opcaoSubtitulo}>{subtitulo}</Text>}
+            </View>
             <Ionicons
               name={selecionada ? 'checkmark-circle' : 'ellipse-outline'}
               size={20}
@@ -44,7 +48,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.card,
   },
   opcaoSelecionada: { borderColor: colors.primary, backgroundColor: '#EAF3F7' },
-  opcaoTexto: { color: colors.text, flex: 1, marginRight: spacing.sm },
+  opcaoConteudo: { flex: 1, marginRight: spacing.sm },
+  opcaoTexto: { color: colors.text },
   opcaoTextoSelecionado: { color: colors.primary, fontWeight: '600' },
+  opcaoSubtitulo: { color: colors.textLight, fontSize: fontSizes.sm, marginTop: 2 },
   erroTexto: { color: colors.danger, fontSize: fontSizes.sm, marginTop: spacing.xs },
 });

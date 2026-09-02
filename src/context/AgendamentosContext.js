@@ -11,6 +11,26 @@ export function AgendamentosProvider({ children }) {
     );
   }
 
+  function tempoEsperaEstimado(unidade) {
+    const confirmadosNaUnidade = agendamentos.filter(
+      (a) => a.status === 'confirmado' && a.unidade === unidade
+    ).length;
+
+    if (confirmadosNaUnidade === 0) return 'até 10 min';
+    if (confirmadosNaUnidade <= 2) return '20 a 30 min';
+    return '40 min ou mais';
+  }
+
+  function posicaoNaFila(id) {
+    const item = agendamentos.find((a) => a.id === id);
+    if (!item || item.status !== 'espera') return null;
+
+    const fila = agendamentos.filter(
+      (a) => a.status === 'espera' && a.unidade === item.unidade && a.data === item.data
+    );
+    return fila.findIndex((a) => a.id === id) + 1;
+  }
+
   function adicionarAgendamento(novo) {
     setAgendamentos((atual) => [
       ...atual,
@@ -54,6 +74,8 @@ export function AgendamentosProvider({ children }) {
       value={{
         agendamentos,
         unidadeIndisponivel,
+        tempoEsperaEstimado,
+        posicaoNaFila,
         adicionarAgendamento,
         entrarListaEspera,
         cancelarAgendamento,
