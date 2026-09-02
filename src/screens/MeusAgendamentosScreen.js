@@ -1,11 +1,28 @@
 import React from 'react';
-import { View, Text, FlatList, StyleSheet } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Alert, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, fontSizes, radius, shadow } from '../theme/theme';
 import { useAgendamentos } from '../context/AgendamentosContext';
+import { podeCancelar } from '../utils/validation';
+
+const statusInfo = {
+  confirmado: { texto: 'Confirmado', cor: colors.success, fundo: '#E7F3EE' },
+  cancelado: { texto: 'Cancelado', cor: colors.danger, fundo: '#FBEAEA' },
+};
 
 export default function MeusAgendamentosScreen() {
-  const { agendamentos } = useAgendamentos();
+  const { agendamentos, cancelarAgendamento } = useAgendamentos();
+
+  function confirmarCancelamento(item) {
+    Alert.alert(
+      'Cancelar agendamento',
+      `Deseja realmente cancelar o agendamento de ${item.servico} em ${item.data}?`,
+      [
+        { text: 'Manter agendamento', style: 'cancel' },
+        { text: 'Cancelar agendamento', style: 'destructive', onPress: () => cancelarAgendamento(item.id) },
+      ]
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -18,25 +35,44 @@ export default function MeusAgendamentosScreen() {
         <FlatList
           data={agendamentos}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <View style={styles.card}>
-              <View style={styles.cardTopo}>
-                <Text style={styles.cardTitulo}>{item.servico}</Text>
-                <View style={styles.status}>
-                  <Text style={styles.statusTexto}>Confirmado</Text>
+          renderItem={({ item }) => {
+            const status = statusInfo[item.status] ?? statusInfo.confirmado;
+            const cancelavel = item.status === 'confirmado' && podeCancelar(item.data);
+            const bloqueado = item.status === 'confirmado' && !podeCancelar(item.data);
+
+            return (
+              <View style={styles.card}>
+                <View style={styles.cardTopo}>
+                  <Text style={styles.cardTitulo}>{item.servico}</Text>
+                  <View style={[styles.status, { backgroundColor: status.fundo }]}>
+                    <Text style={[styles.statusTexto, { color: status.cor }]}>{status.texto}</Text>
+                  </View>
                 </View>
+                <Text style={styles.cardDetalhe}>{item.detalhe}</Text>
+                <View style={styles.linha}>
+                  <Ionicons name="location-outline" size={14} color={colors.textLight} />
+                  <Text style={styles.cardSubtitulo}>{item.unidade}</Text>
+                </View>
+                <View style={styles.linha}>
+                  <Ionicons name="calendar-outline" size={14} color={colors.primary} />
+                  <Text style={styles.cardData}>{item.data}</Text>
+                </View>
+
+                {cancelavel && (
+                  <TouchableOpacity style={styles.cancelar} onPress={() => confirmarCancelamento(item)}>
+                    <Ionicons name="close-circle-outline" size={16} color={colors.danger} />
+                    <Text style={styles.cancelarTexto}>Cancelar agendamento</Text>
+                  </TouchableOpacity>
+                )}
+                {bloqueado && (
+                  <View style={styles.aviso}>
+                    <Ionicons name="information-circle-outline" size={14} color={colors.textLight} />
+                    <Text style={styles.avisoTexto}>Cancelamento indisponível com menos de 1 dia de antecedência</Text>
+                  </View>
+                )}
               </View>
-              <Text style={styles.cardDetalhe}>{item.detalhe}</Text>
-              <View style={styles.linha}>
-                <Ionicons name="location-outline" size={14} color={colors.textLight} />
-                <Text style={styles.cardSubtitulo}>{item.unidade}</Text>
-              </View>
-              <View style={styles.linha}>
-                <Ionicons name="calendar-outline" size={14} color={colors.primary} />
-                <Text style={styles.cardData}>{item.data}</Text>
-              </View>
-            </View>
-          )}
+            );
+          }}
         />
       )}
     </View>
@@ -57,14 +93,33 @@ const styles = StyleSheet.create({
   cardTopo: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.xs },
   cardTitulo: { fontSize: fontSizes.md, fontWeight: '600', color: colors.text, flex: 1, marginRight: spacing.sm },
   status: {
-    backgroundColor: '#E7F3EE',
     borderRadius: radius.pill,
     paddingHorizontal: spacing.sm,
     paddingVertical: 2,
   },
-  statusTexto: { color: colors.success, fontSize: fontSizes.sm, fontWeight: '600' },
+  statusTexto: { fontSize: fontSizes.sm, fontWeight: '600' },
   cardDetalhe: { fontSize: fontSizes.sm, color: colors.text, marginTop: 2 },
   linha: { flexDirection: 'row', alignItems: 'center', marginTop: 4, gap: 4 },
   cardSubtitulo: { fontSize: fontSizes.sm, color: colors.textLight, marginLeft: 4 },
   cardData: { fontSize: fontSizes.sm, color: colors.primary, fontWeight: '600', marginLeft: 4 },
+  cancelar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    marginTop: spacing.sm,
+    paddingTop: spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  cancelarTexto: { color: colors.danger, fontSize: fontSizes.sm, fontWeight: '600' },
+  aviso: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    marginTop: spacing.sm,
+    paddingTop: spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  avisoTexto: { color: colors.textLight, fontSize: fontSizes.sm, flex: 1 },
 });
