@@ -43,3 +43,6 @@ export function podeCancelar(data) {
   const umDiaEmMs = 24 * 60 * 60 * 1000;
   return dataAgendamento.getTime() - hoje.getTime() >= umDiaEmMs;
 }
+export function validarConfirmacaoSenha(senha, confirmacao) {
+  return senha === confirmacao && confirmacao.length > 0;
+}
