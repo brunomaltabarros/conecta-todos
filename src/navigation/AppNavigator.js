@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { colors } from '../theme/theme';
 
 import LoginScreen from '../screens/LoginScreen';
+import CadastroScreen from '../screens/CadastroScreen';
 import HomeScreen from '../screens/HomeScreen';
 import EmissaoCnhScreen from '../screens/EmissaoCnhScreen';
 import RenovacaoCnhScreen from '../screens/RenovacaoCnhScreen';
@@ -28,11 +29,18 @@ export default function AppNavigator() {
         }}
       >
         {!user ? (
-          <Stack.Screen
-            name="Login"
-            component={LoginScreen}
-            options={{ headerShown: false }}
-          />
+          <>
+            <Stack.Screen
+              name="Login"
+              component={LoginScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Cadastro"
+              component={CadastroScreen}
+              options={{ headerShown: false }}
+            />
+          </>
         ) : (
           <>
             <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'ConectaTodos' }} />
