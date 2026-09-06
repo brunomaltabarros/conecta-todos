@@ -107,4 +107,102 @@ export default function AgendamentoCard({ item, tempoEsperaEstimado, posicaoNaFi
       {cancelavel && (
         <TouchableOpacity style={styles.cancelar} onPress={() => onCancelar(item)}>
           <Ionicons name="close-circle-outline" size={16} color={colors.danger} />
-          <Text style={styles.cancelar
+          <Text style={styles.cancelarTexto}>Cancelar agendamento</Text>
+        </TouchableOpacity>
+      )}
+
+      {bloqueado && (
+        <View style={styles.avisoBloqueado}>
+          <Ionicons name="lock-closed-outline" size={14} color={colors.textLight} />
+          <Text style={styles.avisoBloqueadoTexto}>
+            Cancelamento indisponível (menos de 1 dia para o atendimento)
+          </Text>
+        </View>
+      )}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: colors.card,
+    borderRadius: radius?.md ?? 12,
+    padding: spacing.md,
+    marginBottom: spacing.sm,
+    borderWidth: 1,
+    borderColor: colors.border,
+    ...(shadow ?? {}),
+  },
+  cardTopo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.xs,
+  },
+  cardTitulo: { fontSize: fontSizes.md, fontWeight: '600', color: colors.text, flex: 1 },
+  status: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
+    borderRadius: 20,
+    marginLeft: spacing.sm,
+  },
+  statusTexto: { fontSize: fontSizes.sm, fontWeight: '600' },
+  cardDetalhe: { fontSize: fontSizes.sm, color: colors.text, marginBottom: spacing.xs },
+  linha: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 4,
+  },
+  cardSubtitulo: { fontSize: fontSizes.sm, color: colors.textLight },
+  cardData: { fontSize: fontSizes.sm, color: colors.primary, fontWeight: '600' },
+  cardFila: { fontSize: fontSizes.sm, color: colors.secondary, fontWeight: '600' },
+  concluir: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: spacing.sm,
+  },
+  concluirTexto: { color: colors.primary, fontWeight: '600', fontSize: fontSizes.sm },
+  avaliacao: {
+    marginTop: spacing.sm,
+    padding: spacing.sm,
+    backgroundColor: colors.background,
+    borderRadius: 10,
+  },
+  avaliacaoTitulo: { fontSize: fontSizes.sm, fontWeight: '600', color: colors.text, marginBottom: spacing.xs },
+  estrelas: { flexDirection: 'row', marginBottom: spacing.sm },
+  estrela: { marginRight: 4 },
+  comentarioInput: {
+    backgroundColor: colors.card,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 8,
+    padding: spacing.sm,
+    fontSize: fontSizes.sm,
+    minHeight: 60,
+    textAlignVertical: 'top',
+    marginBottom: spacing.sm,
+  },
+  enviarBotao: {
+    backgroundColor: colors.secondary,
+    borderRadius: 8,
+    padding: spacing.sm,
+    alignItems: 'center',
+  },
+  enviarTexto: { color: '#fff', fontWeight: 'bold', fontSize: fontSizes.sm },
+  cancelar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: spacing.sm,
+  },
+  cancelarTexto: { color: colors.danger, fontWeight: '600', fontSize: fontSizes.sm },
+  avisoBloqueado: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: spacing.sm,
+  },
+  avisoBloqueadoTexto: { color: colors.textLight, fontSize: fontSizes.sm, fontStyle: 'italic' },
+});
