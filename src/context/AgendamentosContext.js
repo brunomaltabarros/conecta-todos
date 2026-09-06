@@ -71,4 +71,30 @@ export function AgendamentosProvider({ children }) {
 
   function finalizarAgendamento(id, feedback) {
     setAgendamentos((atual) =>
-      atual.map((a) => (a.id === id ? { 
+      atual.map((a) =>
+        a.id === id ? { ...a, status: 'finalizado', feedback } : a
+      )
+    );
+  }
+
+  return (
+    <AgendamentosContext.Provider
+      value={{
+        agendamentos,
+        adicionarAgendamento,
+        entrarListaEspera,
+        cancelarAgendamento,
+        finalizarAgendamento,
+        unidadeIndisponivel,
+        tempoEsperaEstimado,
+        posicaoNaFila,
+      }}
+    >
+      {children}
+    </AgendamentosContext.Provider>
+  );
+}
+
+export function useAgendamentos() {
+  return useContext(AgendamentosContext);
+}
