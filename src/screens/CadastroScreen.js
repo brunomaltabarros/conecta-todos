@@ -30,19 +30,11 @@ export default function CadastroScreen({ navigation }) {
     if (!validarSenha(senha)) novosErros.senha = 'A senha deve ter pelo menos 6 caracteres';
     if (!validarConfirmacaoSenha(senha, confirmarSenha)) novosErros.confirmarSenha = 'As senhas não coincidem';
 
-    if (Object.keys(novosErros).length > 0) {
-      setErros(novosErros);
-      return;
+    setErros(novosErros);
+    if (Object.keys(novosErros).length === 0) {
+      // Simulação de cadastro — aqui entraria a chamada real a uma API
+      login(email);
     }
-
-    const resultado = cadastrar({ nome, email, senha });
-    if (!resultado.ok) {
-      setErros({ email: resultado.erro });
-      return;
-    }
-
-    setErros({});
-  }
   }
 
   return (

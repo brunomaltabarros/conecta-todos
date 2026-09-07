@@ -42,7 +42,6 @@ export default function LoginScreen({ navigation }) {
     
     setErros({});
   }
-  }
 
   return (
     <KeyboardAvoidingView
