@@ -25,10 +25,23 @@ export default function LoginScreen({ navigation }) {
     if (!validarEmail(email)) novosErros.email = 'Informe um e-mail válido';
     if (!validarSenha(senha)) novosErros.senha = 'A senha deve ter pelo menos 6 caracteres';
 
-    setErros(novosErros);
-    if (Object.keys(novosErros).length === 0) {
-      login(email);
+    if (Object.keys(novosErros).length > 0) {
+      setErros(novosErros);
+      return;
     }
+
+    const resultado = login(email, senha);
+    if (!resultado.ok) {
+      setErros(
+        resultado.erro === 'Senha incorreta'
+          ? { senha: resultado.erro }
+          : { email: resultado.erro }
+      );
+      return;
+    }
+    
+    setErros({});
+  }
   }
 
   return (

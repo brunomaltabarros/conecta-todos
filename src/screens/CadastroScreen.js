@@ -16,7 +16,7 @@ import { colors, spacing, fontSizes } from '../theme/theme';
 import Botao from '../components/Botao';
 
 export default function CadastroScreen({ navigation }) {
-  const { login } = useAuth();
+  const { cadastrar } = useAuth();
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
@@ -30,11 +30,19 @@ export default function CadastroScreen({ navigation }) {
     if (!validarSenha(senha)) novosErros.senha = 'A senha deve ter pelo menos 6 caracteres';
     if (!validarConfirmacaoSenha(senha, confirmarSenha)) novosErros.confirmarSenha = 'As senhas não coincidem';
 
-    setErros(novosErros);
-    if (Object.keys(novosErros).length === 0) {
-      // Simulação de cadastro — aqui entraria a chamada real a uma API
-      login(email);
+    if (Object.keys(novosErros).length > 0) {
+      setErros(novosErros);
+      return;
     }
+
+    const resultado = cadastrar({ nome, email, senha });
+    if (!resultado.ok) {
+      setErros({ email: resultado.erro });
+      return;
+    }
+
+    setErros({});
+  }
   }
 
   return (
