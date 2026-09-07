@@ -5,17 +5,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { servicos } from '../data/services';
 import { useAuth } from '../context/AuthContext';
 import { colors, spacing, fontSizes } from '../theme/theme';
-
-const iconesPorServico = {
-  '1': 'car-outline',
-  '2': 'refresh-outline',
-  '3': 'swap-horizontal-outline',
-  '4': 'document-text-outline',
-};
+import CardServico from '../components/CardServico';
 
 export default function HomeScreen({ navigation }) {
   const { user } = useAuth();
   const inicial = user?.nome?.charAt(0)?.toUpperCase() ?? '?';
+  const servicosDestaque = servicos.slice(0, 3);
 
   return (
     <View style={styles.container}>
@@ -37,26 +32,23 @@ export default function HomeScreen({ navigation }) {
         <Text style={styles.historicoTexto}>Ver meus agendamentos</Text>
       </TouchableOpacity>
 
-      <Text style={styles.tituloSecao}>Serviços disponíveis</Text>
+      <View style={styles.secaoTopo}>
+        <Text style={styles.tituloSecao}>Serviços disponíveis</Text>
+        <TouchableOpacity style={styles.verTodos} onPress={() => navigation.navigate('Servicos')}>
+          <Text style={styles.verTodosTexto}>Ver todos</Text>
+          <Ionicons name="arrow-forward" size={16} color={colors.primary} />
+        </TouchableOpacity>
+      </View>
 
       <FlatList
-        data={servicos}
+        data={servicosDestaque}
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ paddingBottom: spacing.lg }}
         renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.card}
+          <CardServico
+            servico={item}
             onPress={() => navigation.navigate(item.rota, { servico: item })}
-          >
-            <View style={styles.iconeCirculo}>
-              <Ionicons name={iconesPorServico[item.id]} size={22} color={colors.primary} />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.cardTitulo}>{item.nome}</Text>
-              <Text style={styles.cardSubtitulo}>{item.orgao} · {item.duracao}</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color={colors.textLight} />
-          </TouchableOpacity>
+          />
         )}
       />
     </View>
@@ -94,26 +86,13 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   historicoTexto: { color: '#fff', fontWeight: '600', fontSize: fontSizes.md },
-  tituloSecao: { fontSize: fontSizes.lg, fontWeight: 'bold', color: colors.text, marginBottom: spacing.sm },
-  card: {
+  secaoTopo: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: colors.card,
-    borderRadius: 12,
-    padding: spacing.md,
     marginBottom: spacing.sm,
-    borderWidth: 1,
-    borderColor: colors.border,
   },
-  iconeCirculo: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#EAF3F7',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: spacing.md,
-  },
-  cardTitulo: { fontSize: fontSizes.md, fontWeight: '600', color: colors.text },
-  cardSubtitulo: { fontSize: fontSizes.sm, color: colors.textLight, marginTop: 2 },
+  tituloSecao: { fontSize: fontSizes.lg, fontWeight: 'bold', color: colors.text },
+  verTodos: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  verTodosTexto: { color: colors.primary, fontWeight: '600', fontSize: fontSizes.md },
 });
