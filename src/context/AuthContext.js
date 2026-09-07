@@ -30,12 +30,46 @@ export function AuthProvider({ children }) {
     return { ok: true };
   }
 
+  function atualizarPerfil({ nome, email }) {
+    const emailNormalizado = email.trim().toLowerCase();
+    const emailAtual = user.email;
+
+    const emailEmUso = contas.some(
+      (c) => c.email === emailNormalizado && c.email !== emailAtual
+    );
+    if (emailEmUso) {
+      return { ok: false, erro: 'Já existe uma conta com esse e-mail' };
+    }
+
+    setContas((atual) =>
+      atual.map((c) =>
+        c.email === emailAtual ? { ...c, nome: nome.trim(), email: emailNormalizado } : c
+      )
+    );
+    setUser({ nome: nome.trim(), email: emailNormalizado });
+    return { ok: true };
+  }
+
+  function alterarSenha({ senhaAtual, novaSenha }) {
+    const conta = contas.find((c) => c.email === user.email);
+
+    if (!conta) return { ok: false, erro: 'Conta não encontrada' };
+    if (conta.senha !== senhaAtual) return { ok: false, erro: 'Senha atual incorreta' };
+
+    setContas((atual) =>
+      atual.map((c) => (c.email === user.email ? { ...c, senha: novaSenha } : c))
+    );
+    return { ok: true };
+  }
+
   function logout() {
     setUser(null);
   }
 
   return (
-    <AuthContext.Provider value={{ user, contas, cadastrar, login, logout }}>
+    <AuthContext.Provider
+      value={{ user, contas, cadastrar, login, atualizarPerfil, alterarSenha, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );

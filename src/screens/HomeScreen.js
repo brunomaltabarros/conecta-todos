@@ -14,14 +14,18 @@ const iconesPorServico = {
 };
 
 export default function HomeScreen({ navigation }) {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
+  const inicial = user?.nome?.charAt(0)?.toUpperCase() ?? '?';
 
   return (
     <View style={styles.container}>
       <View style={styles.saudacao}>
-        <Text style={styles.saudacaoTexto}>Olá, {user?.nome}!</Text>
-        <TouchableOpacity onPress={logout}>
-          <Text style={styles.sair}>Sair</Text>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.saudacaoTexto}>Olá, {user?.nome}!</Text>
+          <Text style={styles.saudacaoSubtexto}>O que você precisa resolver hoje?</Text>
+        </View>
+        <TouchableOpacity style={styles.avatar} onPress={() => navigation.navigate('Perfil')}>
+          <Text style={styles.avatarTexto}>{inicial}</Text>
         </TouchableOpacity>
       </View>
 
@@ -68,7 +72,17 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   saudacaoTexto: { fontSize: fontSizes.xl, fontWeight: 'bold', color: colors.text },
-  sair: { color: colors.danger, fontWeight: '600' },
+  saudacaoSubtexto: { fontSize: fontSizes.sm, color: colors.textLight, marginTop: 2 },
+  avatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: spacing.sm,
+  },
+  avatarTexto: { color: '#fff', fontWeight: 'bold', fontSize: fontSizes.lg },
   historico: {
     flexDirection: 'row',
     alignItems: 'center',

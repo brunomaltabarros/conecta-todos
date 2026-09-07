@@ -13,6 +13,7 @@ export default function CampoTexto({
   keyboardType = 'default',
   autoCapitalize = 'sentences',
   maxLength,
+  secureTextEntry = false,
 }) {
   return (
     <>
@@ -28,6 +29,7 @@ export default function CampoTexto({
           keyboardType={keyboardType}
           autoCapitalize={autoCapitalize}
           maxLength={maxLength}
+          secureTextEntry={secureTextEntry}
         />
       </View>
       {erro && <Text style={styles.erroTexto}>{erro}</Text>}

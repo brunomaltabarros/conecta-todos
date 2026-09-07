@@ -8,6 +8,7 @@ import { colors } from '../theme/theme';
 import LoginScreen from '../screens/LoginScreen';
 import CadastroScreen from '../screens/CadastroScreen';
 import HomeScreen from '../screens/HomeScreen';
+import PerfilScreen from '../screens/PerfilScreen';
 import EmissaoCnhScreen from '../screens/EmissaoCnhScreen';
 import RenovacaoCnhScreen from '../screens/RenovacaoCnhScreen';
 import TransferenciaVeiculoScreen from '../screens/TransferenciaVeiculoScreen';
@@ -44,6 +45,7 @@ export default function AppNavigator() {
         ) : (
           <>
             <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'ConectaTodos' }} />
+            <Stack.Screen name="Perfil" component={PerfilScreen} options={{ title: 'Meu Perfil' }} />
             <Stack.Screen name="EmissaoCnh" component={EmissaoCnhScreen} options={{ title: 'Emissão de CNH' }} />
             <Stack.Screen name="RenovacaoCnh" component={RenovacaoCnhScreen} options={{ title: 'Renovação de CNH' }} />
             <Stack.Screen name="TransferenciaVeiculo" component={TransferenciaVeiculoScreen} options={{ title: 'Transferência de Veículo' }} />
