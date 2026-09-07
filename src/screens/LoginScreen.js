@@ -13,6 +13,7 @@ import { useAuth } from '../context/AuthContext';
 import { validarEmail, validarSenha } from '../utils/validation';
 import { colors, spacing, fontSizes } from '../theme/theme';
 import Botao from '../components/Botao';
+import Logo from '../components/Logo';
 
 export default function LoginScreen({ navigation }) {
   const { login } = useAuth();
@@ -39,7 +40,7 @@ export default function LoginScreen({ navigation }) {
       );
       return;
     }
-    
+
     setErros({});
   }
 
@@ -49,8 +50,7 @@ export default function LoginScreen({ navigation }) {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <View style={styles.header}>
-        {/* TODO: trocar por <Image source={require('../../assets/logo.png')} style={styles.logoImagem} /> quando o logo chegar */}
-        <Text style={styles.logo}>ConectaTodos</Text>
+        <Logo tamanho={52} variante="negativo" comTexto />
         <Text style={styles.subtitle}>Agendamento de serviços públicos</Text>
       </View>
 
@@ -87,10 +87,9 @@ export default function LoginScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
- container: { flex: 1, backgroundColor: colors.primary, justifyContent: 'center' },
-header: { alignItems: 'center', paddingVertical: spacing.xl, paddingBottom: spacing.xl * 1.5 },
-  logo: { fontSize: fontSizes.xxl, fontWeight: 'bold', color: '#fff' },
-  subtitle: { fontSize: fontSizes.md, color: '#DCE7EE', marginTop: spacing.xs },
+  container: { flex: 1, backgroundColor: colors.primary, justifyContent: 'center' },
+  header: { alignItems: 'center', paddingVertical: spacing.xl, paddingBottom: spacing.xl * 1.5 },
+  subtitle: { fontSize: fontSizes.md, color: '#DCE7EE', marginTop: spacing.md },
   form: {
     backgroundColor: colors.background,
     borderTopLeftRadius: 28,

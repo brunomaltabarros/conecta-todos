@@ -14,6 +14,7 @@ import { useAuth } from '../context/AuthContext';
 import { validarEmail, validarSenha, validarConfirmacaoSenha, validarCampoObrigatorio } from '../utils/validation';
 import { colors, spacing, fontSizes } from '../theme/theme';
 import Botao from '../components/Botao';
+import Logo from '../components/Logo';
 
 export default function CadastroScreen({ navigation }) {
   const { cadastrar } = useAuth();
@@ -50,7 +51,7 @@ export default function CadastroScreen({ navigation }) {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <View style={styles.header}>
-        <Text style={styles.logo}>ConectaTodos</Text>
+        <Logo tamanho={44} variante="negativo" comTexto />
         <Text style={styles.subtitle}>Crie sua conta para começar</Text>
       </View>
 
@@ -108,8 +109,7 @@ export default function CadastroScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.primary },
   header: { paddingTop: 80, paddingBottom: spacing.lg, alignItems: 'center' },
-  logo: { fontSize: fontSizes.xxl, fontWeight: 'bold', color: '#fff' },
-  subtitle: { fontSize: fontSizes.md, color: '#DCE7EE', marginTop: spacing.xs },
+  subtitle: { fontSize: fontSizes.md, color: '#DCE7EE', marginTop: spacing.md },
   form: {
     flex: 1,
     backgroundColor: colors.background,

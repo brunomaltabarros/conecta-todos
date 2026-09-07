@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { useAuth } from '../context/AuthContext';
 import { colors } from '../theme/theme';
+import Logo from '../components/Logo';
 
 import LoginScreen from '../screens/LoginScreen';
 import CadastroScreen from '../screens/CadastroScreen';
@@ -45,7 +46,11 @@ export default function AppNavigator() {
           </>
         ) : (
           <>
-            <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'ConectaTodos' }} />
+            <Stack.Screen
+              name="Home"
+              component={HomeScreen}
+              options={{ headerTitle: () => <Logo tamanho={26} variante="negativo" comTexto /> }}
+            />
             <Stack.Screen name="Perfil" component={PerfilScreen} options={{ title: 'Meu Perfil' }} />
             <Stack.Screen name="Servicos" component={ServicosScreen} options={{ title: 'Serviços' }} />
             <Stack.Screen name="EmissaoCnh" component={EmissaoCnhScreen} options={{ title: 'Emissão de CNH' }} />
