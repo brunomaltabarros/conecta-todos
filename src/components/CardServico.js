@@ -2,13 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, fontSizes } from '../theme/theme';
-
-const iconesPorServico = {
-  '1': 'car-outline',
-  '2': 'refresh-outline',
-  '3': 'swap-horizontal-outline',
-  '4': 'document-text-outline',
-};
+import { iconesPorServico } from '../utils/iconesServicos';
 
 export default function CardServico({ servico, onPress }) {
   return (
@@ -17,7 +11,7 @@ export default function CardServico({ servico, onPress }) {
         <Ionicons
           name={iconesPorServico[servico.id] ?? 'document-outline'}
           size={22}
-          color={colors.primary}
+          color={colors.secondary}
         />
       </View>
       <View style={{ flex: 1 }}>
@@ -44,7 +38,9 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#EAF3F7',
+    backgroundColor: '#FBEFE7',
+    borderWidth: 1.5,
+    borderColor: colors.secondary,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: spacing.md,
