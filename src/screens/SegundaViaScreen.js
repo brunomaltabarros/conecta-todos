@@ -41,7 +41,7 @@ export default function SegundaViaScreen({ route, navigation }) {
             text: 'Entrar na lista de espera',
             onPress: () => {
               entrarListaEspera(dados);
-              navigation.navigate('MeusAgendamentos');
+              navigation.navigate('Home');
             },
           },
         ]
@@ -51,7 +51,7 @@ export default function SegundaViaScreen({ route, navigation }) {
 
     adicionarAgendamento(dados);
     Alert.alert('Agendamento confirmado', `Segunda via de ${documento} em ${data} - ${unidade}`);
-    navigation.navigate('MeusAgendamentos');
+    navigation.navigate('Home');
   }
 
   return (

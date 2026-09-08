@@ -41,7 +41,7 @@ export default function EmissaoCnhScreen({ route, navigation }) {
             text: 'Entrar na lista de espera',
             onPress: () => {
               entrarListaEspera(dados);
-              navigation.navigate('MeusAgendamentos');
+              navigation.navigate('Home');
             },
           },
         ]
@@ -51,7 +51,7 @@ export default function EmissaoCnhScreen({ route, navigation }) {
 
     adicionarAgendamento(dados);
     Alert.alert('Agendamento confirmado', `Emissão de CNH (${categoria}) em ${data} - ${unidade}`);
-    navigation.navigate('MeusAgendamentos');
+    navigation.navigate('Home');
   }
 
   return (
