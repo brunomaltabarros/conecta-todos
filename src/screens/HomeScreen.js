@@ -24,14 +24,6 @@ export default function HomeScreen({ navigation }) {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity
-        style={styles.historico}
-        onPress={() => navigation.navigate('MeusAgendamentos')}
-      >
-        <Ionicons name="calendar-outline" size={20} color="#fff" />
-        <Text style={styles.historicoTexto}>Ver meus agendamentos</Text>
-      </TouchableOpacity>
-
       <View style={styles.secaoTopo}>
         <Text style={styles.tituloSecao}>Serviços disponíveis</Text>
         <TouchableOpacity style={styles.verTodos} onPress={() => navigation.navigate('Servicos')}>
@@ -75,17 +67,6 @@ const styles = StyleSheet.create({
     marginLeft: spacing.sm,
   },
   avatarTexto: { color: '#fff', fontWeight: 'bold', fontSize: fontSizes.lg },
-  historico: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    backgroundColor: colors.primaryLight,
-    borderRadius: 10,
-    padding: spacing.md,
-    marginBottom: spacing.lg,
-  },
-  historicoTexto: { color: '#fff', fontWeight: '600', fontSize: fontSizes.md },
   secaoTopo: {
     flexDirection: 'row',
     justifyContent: 'space-between',
