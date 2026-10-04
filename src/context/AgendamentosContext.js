@@ -72,7 +72,7 @@ export function AgendamentosProvider({ children }) {
   function finalizarAgendamento(id, feedback) {
     setAgendamentos((atual) =>
       atual.map((a) =>
-        a.id === id ? { ...a, status: 'finalizado', feedback } : a
+        a.id === id ? { ...a, status: 'concluido', feedback } : a
       )
     );
   }

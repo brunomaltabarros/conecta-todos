@@ -39,7 +39,7 @@ export default function TransferenciaVeiculoScreen({ route, navigation }) {
             text: 'Entrar na lista de espera',
             onPress: () => {
               entrarListaEspera(dados);
-              navigation.navigate('Home');
+              navigation.navigate('Abas', { screen: 'Agendamentos' });
             },
           },
         ]
@@ -49,7 +49,7 @@ export default function TransferenciaVeiculoScreen({ route, navigation }) {
 
     adicionarAgendamento(dados);
     Alert.alert('Agendamento confirmado', `Transferência do veículo ${placa.toUpperCase()} em ${data} - ${unidade}`);
-    navigation.navigate('Home');
+    navigation.navigate('Abas', { screen: 'Agendamentos' });
   }
 
   return (
