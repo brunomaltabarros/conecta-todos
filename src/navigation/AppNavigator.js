@@ -15,6 +15,7 @@ import HomeScreen from '../screens/HomeScreen';
 import ServicosScreen from '../screens/ServicosScreen';
 import MeusAgendamentosScreen from '../screens/MeusAgendamentosScreen';
 import PerfilScreen from '../screens/PerfilScreen';
+import AjustesScreen from '../screens/AjustesScreen';
 import EmissaoCnhScreen from '../screens/EmissaoCnhScreen';
 import RenovacaoCnhScreen from '../screens/RenovacaoCnhScreen';
 import TransferenciaVeiculoScreen from '../screens/TransferenciaVeiculoScreen';
@@ -127,6 +128,7 @@ export default function AppNavigator() {
               component={AbasPrincipais}
               options={{ headerShown: false }}
             />
+            <Stack.Screen name="Ajustes" component={AjustesScreen} options={{ title: 'Ajustes' }} />
             {/* Formularios entram empilhados por cima das abas, com botao de voltar. */}
             <Stack.Screen name="EmissaoCnh" component={EmissaoCnhScreen} options={{ title: 'Emissão de CNH' }} />
             <Stack.Screen name="RenovacaoCnh" component={RenovacaoCnhScreen} options={{ title: 'Renovação de CNH' }} />

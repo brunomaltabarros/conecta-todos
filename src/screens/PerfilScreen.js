@@ -3,6 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, Alert, StyleSheet } from 'rea
 import { Ionicons } from '@expo/vector-icons';
 
 import { useAuth } from '../context/AuthContext';
+import { usePreferencias } from '../context/PreferenciasContext';
 import {
   validarCampoObrigatorio,
   validarEmail,
@@ -13,8 +14,9 @@ import { colors, spacing, fontSizes, radius, shadow } from '../theme/theme';
 import Botao from '../components/Botao';
 import CampoTexto from '../components/CampoTexto';
 
-export default function PerfilScreen() {
+export default function PerfilScreen({ navigation }) {
   const { user, atualizarPerfil, alterarSenha, logout } = useAuth();
+  const { confirmarAoSair } = usePreferencias();
 
   const [nome, setNome] = useState(user?.nome ?? '');
   const [email, setEmail] = useState(user?.email ?? '');
@@ -74,6 +76,11 @@ export default function PerfilScreen() {
   }
 
   function handleLogout() {
+    if (!confirmarAoSair) {
+      logout();
+      return;
+    }
+
     Alert.alert('Sair da conta', 'Deseja realmente sair?', [
       { text: 'Voltar', style: 'cancel' },
       { text: 'Sair', style: 'destructive', onPress: logout },
@@ -150,6 +157,22 @@ export default function PerfilScreen() {
         <Botao titulo="Alterar senha" onPress={handleAlterarSenha} cor={colors.primary} />
       </View>
 
+      <TouchableOpacity
+        style={styles.linkAjustes}
+        onPress={() => navigation.navigate('Ajustes')}
+        accessibilityRole="button"
+        accessibilityLabel="Abrir os ajustes do aplicativo"
+      >
+        <Ionicons name="settings-outline" size={20} color={colors.primary} />
+        <View style={{ flex: 1 }}>
+          <Text style={styles.linkAjustesTitulo}>Ajustes</Text>
+          <Text style={styles.linkAjustesDescricao}>
+            Preferências do aplicativo, meus dados e informações
+          </Text>
+        </View>
+        <Ionicons name="chevron-forward" size={18} color={colors.textLight} />
+      </TouchableOpacity>
+
       <TouchableOpacity style={styles.sair} onPress={handleLogout}>
         <Ionicons name="log-out-outline" size={18} color={colors.danger} />
         <Text style={styles.sairTexto}>Sair da conta</Text>
@@ -189,6 +212,18 @@ const styles = StyleSheet.create({
     ...shadow.card,
   },
   secaoTitulo: { fontSize: fontSizes.lg, fontWeight: 'bold', color: colors.text },
+  linkAjustes: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.card,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginBottom: spacing.md,
+    ...shadow.card,
+  },
+  linkAjustesTitulo: { fontSize: fontSizes.md, fontWeight: '600', color: colors.text },
+  linkAjustesDescricao: { fontSize: fontSizes.sm, color: colors.textLight, marginTop: 2 },
   sair: {
     flexDirection: 'row',
     alignItems: 'center',

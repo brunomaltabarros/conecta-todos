@@ -3,12 +3,19 @@ import { View, Text, FlatList, TouchableOpacity, Alert, StyleSheet } from 'react
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, fontSizes, radius } from '../theme/theme';
 import { useAgendamentos } from '../context/AgendamentosContext';
+import { usePreferencias } from '../context/PreferenciasContext';
 import AgendamentoCard from '../components/AgendamentoCard';
 
 export default function MeusAgendamentosScreen({ navigation }) {
   const { agendamentos, cancelarAgendamento, finalizarAgendamento, tempoEsperaEstimado, posicaoNaFila } = useAgendamentos();
+  const { confirmarAoCancelar } = usePreferencias();
 
   function confirmarCancelamento(item) {
+    if (!confirmarAoCancelar) {
+      cancelarAgendamento(item.id);
+      return;
+    }
+
     const saindoDaFila = item.status === 'espera';
     Alert.alert(
       saindoDaFila ? 'Sair da lista de espera' : 'Cancelar agendamento',

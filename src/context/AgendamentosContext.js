@@ -77,6 +77,10 @@ export function AgendamentosProvider({ children }) {
     );
   }
 
+  function limparAgendamentos() {
+    setAgendamentos([]);
+  }
+
   return (
     <AgendamentosContext.Provider
       value={{
@@ -85,6 +89,7 @@ export function AgendamentosProvider({ children }) {
         entrarListaEspera,
         cancelarAgendamento,
         finalizarAgendamento,
+        limparAgendamentos,
         unidadeIndisponivel,
         tempoEsperaEstimado,
         posicaoNaFila,
