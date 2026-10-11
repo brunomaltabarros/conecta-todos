@@ -39,7 +39,7 @@ export default function RenovacaoCnhScreen({ route, navigation }) {
             text: 'Entrar na lista de espera',
             onPress: () => {
               entrarListaEspera(dados);
-              navigation.navigate('Home');
+              navigation.navigate('Abas', { screen: 'Agendamentos' });
             },
           },
         ]
@@ -49,7 +49,7 @@ export default function RenovacaoCnhScreen({ route, navigation }) {
 
     adicionarAgendamento(dados);
     Alert.alert('Agendamento confirmado', `Renovação de CNH (registro ${registro}) em ${data} - ${unidade}`);
-    navigation.navigate('Home');
+    navigation.navigate('Abas', { screen: 'Agendamentos' });
   }
 
   return (

@@ -72,9 +72,13 @@ export function AgendamentosProvider({ children }) {
   function finalizarAgendamento(id, feedback) {
     setAgendamentos((atual) =>
       atual.map((a) =>
-        a.id === id ? { ...a, status: 'finalizado', feedback } : a
+        a.id === id ? { ...a, status: 'concluido', feedback } : a
       )
     );
+  }
+
+  function limparAgendamentos() {
+    setAgendamentos([]);
   }
 
   return (
@@ -85,6 +89,7 @@ export function AgendamentosProvider({ children }) {
         entrarListaEspera,
         cancelarAgendamento,
         finalizarAgendamento,
+        limparAgendamentos,
         unidadeIndisponivel,
         tempoEsperaEstimado,
         posicaoNaFila,
