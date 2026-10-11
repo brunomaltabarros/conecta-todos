@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, FlatList, TouchableOpacity, Alert, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, spacing, fontSizes, radius } from '../theme/theme';
+import { colors, spacing, fontSizes, radius, toque } from '../theme/theme';
 import { useAgendamentos } from '../context/AgendamentosContext';
 import { usePreferencias } from '../context/PreferenciasContext';
 import AgendamentoCard from '../components/AgendamentoCard';
@@ -73,8 +73,10 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
     backgroundColor: colors.primary,
     borderRadius: radius.sm,
-    paddingVertical: spacing.sm,
+    paddingVertical: spacing.md,
     paddingHorizontal: spacing.md,
+    minHeight: toque.minimo,
+    justifyContent: 'center',
     marginTop: spacing.md,
   },
   vazioBotaoTexto: { color: '#fff', fontWeight: '600', fontSize: fontSizes.md },

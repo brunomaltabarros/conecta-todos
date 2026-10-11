@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, spacing, fontSizes, radius, shadow } from '../theme/theme';
+import { colors, spacing, fontSizes, radius, shadow, toque } from '../theme/theme';
 import { podeCancelar } from '../utils/validation';
 
 const statusInfo = {
@@ -69,7 +69,12 @@ export default function AgendamentoCard({ item, tempoEsperaEstimado, posicaoNaFi
       )}
 
       {confirmado && !avaliando && (
-        <TouchableOpacity style={styles.concluir} onPress={() => setAvaliando(true)}>
+        <TouchableOpacity
+          style={styles.concluir}
+          onPress={() => setAvaliando(true)}
+          accessibilityRole="button"
+          accessibilityLabel="Marcar este agendamento como concluído"
+        >
           <Ionicons name="checkmark-done-outline" size={16} color={colors.primary} />
           <Text style={styles.concluirTexto}>Marcar como concluído</Text>
         </TouchableOpacity>
@@ -80,12 +85,18 @@ export default function AgendamentoCard({ item, tempoEsperaEstimado, posicaoNaFi
           <Text style={styles.avaliacaoTitulo}>Como foi o atendimento? (opcional)</Text>
           <View style={styles.estrelas}>
             {notas.map((n) => (
-              <TouchableOpacity key={n} onPress={() => setNota(n)}>
+              <TouchableOpacity
+                key={n}
+                onPress={() => setNota(n)}
+                style={styles.estrelaBotao}
+                accessibilityRole="button"
+                accessibilityLabel={`Dar nota ${n} de 5`}
+                accessibilityState={{ selected: n <= nota }}
+              >
                 <Ionicons
                   name={n <= nota ? 'star' : 'star-outline'}
                   size={26}
                   color={colors.secondary}
-                  style={styles.estrela}
                 />
               </TouchableOpacity>
             ))}
@@ -98,14 +109,24 @@ export default function AgendamentoCard({ item, tempoEsperaEstimado, posicaoNaFi
             onChangeText={setComentario}
             multiline
           />
-          <TouchableOpacity style={styles.enviarBotao} onPress={enviarFeedback}>
+          <TouchableOpacity
+            style={styles.enviarBotao}
+            onPress={enviarFeedback}
+            accessibilityRole="button"
+            accessibilityLabel="Concluir atendimento e enviar a avaliação"
+          >
             <Text style={styles.enviarTexto}>Concluir atendimento</Text>
           </TouchableOpacity>
         </View>
       )}
 
       {cancelavel && (
-        <TouchableOpacity style={styles.cancelar} onPress={() => onCancelar(item)}>
+        <TouchableOpacity
+          style={styles.cancelar}
+          onPress={() => onCancelar(item)}
+          accessibilityRole="button"
+          accessibilityLabel={emEspera ? 'Sair da lista de espera' : 'Cancelar este agendamento'}
+        >
           <Ionicons name="close-circle-outline" size={16} color={colors.danger} />
           <Text style={styles.cancelarTexto}>Cancelar agendamento</Text>
         </TouchableOpacity>
@@ -131,7 +152,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
     borderWidth: 1,
     borderColor: colors.border,
-    ...(shadow ?? {}),
+    ...shadow.card,
   },
   cardTopo: {
     flexDirection: 'row',
@@ -161,7 +182,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    marginTop: spacing.sm,
+    marginTop: spacing.xs,
+    paddingVertical: spacing.sm,
+    minHeight: toque.minimo,
   },
   concluirTexto: { color: colors.primary, fontWeight: '600', fontSize: fontSizes.sm },
   avaliacao: {
@@ -172,7 +195,12 @@ const styles = StyleSheet.create({
   },
   avaliacaoTitulo: { fontSize: fontSizes.sm, fontWeight: '600', color: colors.text, marginBottom: spacing.xs },
   estrelas: { flexDirection: 'row', marginBottom: spacing.sm },
-  estrela: { marginRight: 4 },
+  estrelaBotao: {
+    width: toque.minimo,
+    height: toque.minimo,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   comentarioInput: {
     backgroundColor: colors.card,
     borderWidth: 1,
@@ -187,15 +215,20 @@ const styles = StyleSheet.create({
   enviarBotao: {
     backgroundColor: colors.secondary,
     borderRadius: 8,
-    padding: spacing.sm,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    minHeight: toque.minimo,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   enviarTexto: { color: '#fff', fontWeight: 'bold', fontSize: fontSizes.sm },
   cancelar: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    marginTop: spacing.sm,
+    marginTop: spacing.xs,
+    paddingVertical: spacing.sm,
+    minHeight: toque.minimo,
   },
   cancelarTexto: { color: colors.danger, fontWeight: '600', fontSize: fontSizes.sm },
   avisoBloqueado: {

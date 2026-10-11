@@ -11,7 +11,7 @@ import {
 
 import { useAuth } from '../context/AuthContext';
 import { validarEmail, validarSenha } from '../utils/validation';
-import { colors, spacing, fontSizes } from '../theme/theme';
+import { colors, spacing, fontSizes, toque } from '../theme/theme';
 import Botao from '../components/Botao';
 import Logo from '../components/Logo';
 
@@ -78,7 +78,12 @@ export default function LoginScreen({ navigation }) {
 
         <Botao titulo="Entrar" onPress={handleLogin} />
 
-        <TouchableOpacity onPress={() => navigation.navigate('Cadastro')} style={styles.linkCadastro}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Cadastro')}
+          style={styles.linkCadastro}
+          accessibilityRole="button"
+          accessibilityLabel="Criar uma conta"
+        >
           <Text style={styles.linkTexto}>Não tem uma conta? Cadastre-se</Text>
         </TouchableOpacity>
       </View>
@@ -109,6 +114,12 @@ const styles = StyleSheet.create({
   },
   inputError: { borderColor: colors.danger },
   erroTexto: { color: colors.danger, fontSize: fontSizes.sm, marginBottom: spacing.sm },
-  linkCadastro: { alignItems: 'center', marginTop: spacing.md },
+  linkCadastro: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: spacing.xs,
+    paddingVertical: spacing.sm,
+    minHeight: toque.minimo,
+  },
   linkTexto: { color: colors.primary, fontWeight: '600' },
 });
