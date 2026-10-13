@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { StyleSheet, ScrollView, Alert } from 'react-native';
+import { StyleSheet, Alert } from 'react-native';
 
 import { validarCampoObrigatorio, validarData } from '../utils/validation';
-import { colors, spacing } from '../theme/theme';
+import { colors } from '../theme/theme';
 import Botao from '../components/Botao';
 import CabecalhoServico from '../components/CabecalhoServico';
 import SeletorOpcoes from '../components/SeletorOpcoes';
 import SeletorUnidade from '../components/SeletorUnidade';
 import CampoData from '../components/CampoData';
+import FormularioScroll from '../components/FormularioScroll';
 import { useAgendamentos } from '../context/AgendamentosContext';
 
 const categorias = ['A - Motocicleta', 'B - Carro', 'AB - Moto e Carro'];
@@ -55,7 +56,7 @@ export default function EmissaoCnhScreen({ route, navigation }) {
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ padding: spacing.md }}>
+    <FormularioScroll style={styles.container}>
       <CabecalhoServico servico={servico} />
 
       <SeletorOpcoes label="Categoria desejada" opcoes={categorias} valor={categoria} setValor={setCategoria} erro={erros.categoria} />
@@ -63,10 +64,10 @@ export default function EmissaoCnhScreen({ route, navigation }) {
       <CampoData data={data} setData={setData} erro={erros.data} />
 
       <Botao titulo="Confirmar agendamento" onPress={handleConfirmar} />
-    </ScrollView>
+    </FormularioScroll>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
+  container: { backgroundColor: colors.background },
 });
