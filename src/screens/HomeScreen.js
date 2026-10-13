@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { servicos } from '../data/services';
 import { useAuth } from '../context/AuthContext';
-import { colors, spacing, fontSizes } from '../theme/theme';
+import { colors, spacing, fontSizes, toque } from '../theme/theme';
 import CardServico from '../components/CardServico';
 
 export default function HomeScreen({ navigation }) {
@@ -19,14 +19,24 @@ export default function HomeScreen({ navigation }) {
           <Text style={styles.saudacaoTexto}>Olá, {user?.nome}!</Text>
           <Text style={styles.saudacaoSubtexto}>O que você precisa resolver hoje?</Text>
         </View>
-        <TouchableOpacity style={styles.avatar} onPress={() => navigation.navigate('Perfil')}>
+        <TouchableOpacity
+          style={styles.avatar}
+          onPress={() => navigation.navigate('Perfil')}
+          accessibilityRole="button"
+          accessibilityLabel="Abrir meu perfil"
+        >
           <Text style={styles.avatarTexto}>{inicial}</Text>
         </TouchableOpacity>
       </View>
 
       <View style={styles.secaoTopo}>
         <Text style={styles.tituloSecao}>Serviços disponíveis</Text>
-        <TouchableOpacity style={styles.verTodos} onPress={() => navigation.navigate('Servicos')}>
+        <TouchableOpacity
+          style={styles.verTodos}
+          onPress={() => navigation.navigate('Servicos')}
+          accessibilityRole="button"
+          accessibilityLabel="Ver todos os serviços"
+        >
           <Text style={styles.verTodosTexto}>Ver todos</Text>
           <Ionicons name="arrow-forward" size={16} color={colors.primary} />
         </TouchableOpacity>
@@ -74,6 +84,14 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   tituloSecao: { fontSize: fontSizes.lg, fontWeight: 'bold', color: colors.text },
-  verTodos: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  verTodos: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: 4,
+    paddingVertical: spacing.sm,
+    paddingLeft: spacing.sm,
+    minHeight: toque.minimo,
+  },
   verTodosTexto: { color: colors.primary, fontWeight: '600', fontSize: fontSizes.md },
 });

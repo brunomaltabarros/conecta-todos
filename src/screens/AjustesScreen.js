@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { usePreferencias } from '../context/PreferenciasContext';
 import { useAgendamentos } from '../context/AgendamentosContext';
-import { colors, spacing, fontSizes, radius, shadow } from '../theme/theme';
+import { colors, spacing, fontSizes, radius, shadow, toque } from '../theme/theme';
 
 function LinhaSwitch({ icone, titulo, descricao, valor, onChange }) {
   return (
@@ -181,7 +181,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.danger,
     borderRadius: radius.sm,
-    paddingVertical: spacing.sm,
+    paddingVertical: spacing.md,
+    minHeight: toque.minimo,
   },
   botaoLimparTexto: { color: colors.danger, fontWeight: '600', fontSize: fontSizes.md },
   aviso: {

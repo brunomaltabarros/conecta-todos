@@ -18,6 +18,8 @@ export const fontSizes = { sm: 12, md: 14, lg: 16, xl: 20, xxl: 26 };
 
 export const radius = { sm: 8, md: 12, lg: 20, pill: 999 };
 
+export const toque = { minimo: 44 };
+
 export const shadow = {
   card: {
     shadowColor: '#0B1F2A',

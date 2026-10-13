@@ -12,7 +12,7 @@ import {
 
 import { useAuth } from '../context/AuthContext';
 import { validarEmail, validarSenha, validarConfirmacaoSenha, validarCampoObrigatorio } from '../utils/validation';
-import { colors, spacing, fontSizes } from '../theme/theme';
+import { colors, spacing, fontSizes, toque } from '../theme/theme';
 import Botao from '../components/Botao';
 import Logo from '../components/Logo';
 
@@ -98,7 +98,12 @@ export default function CadastroScreen({ navigation }) {
 
         <Botao titulo="Criar conta" onPress={handleCadastrar} />
 
-        <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.linkVoltar}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Login')}
+          style={styles.linkVoltar}
+          accessibilityRole="button"
+          accessibilityLabel="Voltar para a tela de entrada"
+        >
           <Text style={styles.linkTexto}>Já tem uma conta? Entrar</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -130,6 +135,12 @@ const styles = StyleSheet.create({
   },
   inputError: { borderColor: colors.danger },
   erroTexto: { color: colors.danger, fontSize: fontSizes.sm, marginBottom: spacing.sm },
-  linkVoltar: { alignItems: 'center', marginTop: spacing.md },
+  linkVoltar: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: spacing.xs,
+    paddingVertical: spacing.sm,
+    minHeight: toque.minimo,
+  },
   linkTexto: { color: colors.primary, fontWeight: '600' },
 });
