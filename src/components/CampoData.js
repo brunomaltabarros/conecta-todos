@@ -1,26 +1,64 @@
-import React from 'react';
-import { View, Text, TextInput, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { Text, TouchableOpacity, Platform, StyleSheet } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
-import { formatarData } from '../utils/validation';
 import { colors, spacing, fontSizes, radius } from '../theme/theme';
 
+// Converte um objeto Date para o formato dd/mm/aaaa usado no resto do app
+function formatarDataExibicao(date) {
+  const dia = String(date.getDate()).padStart(2, '0');
+  const mes = String(date.getMonth() + 1).padStart(2, '0');
+  const ano = date.getFullYear();
+  return `${dia}/${mes}/${ano}`;
+}
+
+const dataMinima = new Date();
+const dataMaxima = new Date(2100, 11, 31);
+
 export default function CampoData({ data, setData, erro }) {
+  const [mostrarPicker, setMostrarPicker] = useState(false);
+
+  function handleMudarData(evento, dataSelecionada) {
+    if (Platform.OS === 'android') {
+      setMostrarPicker(false);
+    }
+    if (evento.type === 'dismissed') return;
+    if (dataSelecionada) {
+      setData(formatarDataExibicao(dataSelecionada));
+    }
+  }
+
   return (
     <>
       <Text style={styles.label}>Data desejada</Text>
-      <View style={[styles.inputWrapper, erro && styles.inputError]}>
+      <TouchableOpacity
+        style={[styles.inputWrapper, erro && styles.inputError]}
+        onPress={() => setMostrarPicker(true)}
+        activeOpacity={0.7}
+      >
         <Ionicons name="calendar-outline" size={18} color={colors.textLight} style={styles.inputIcone} />
-        <TextInput
-          style={styles.input}
-          placeholder="dd/mm/aaaa"
-          placeholderTextColor={colors.textLight}
-          value={data}
-          onChangeText={(texto) => setData(formatarData(texto))}
-          keyboardType="numeric"
-          maxLength={10}
-        />
-      </View>
+        <Text style={[styles.textoData, !data && styles.placeholder]}>
+          {data || 'Selecionar data'}
+        </Text>
+      </TouchableOpacity>
       {erro && <Text style={styles.erroTexto}>{erro}</Text>}
+
+      {mostrarPicker && (
+        <DateTimePicker
+          value={new Date()}
+          mode="date"
+          display={Platform.OS === 'ios' ? 'inline' : 'default'}
+          minimumDate={dataMinima}
+          maximumDate={dataMaxima}
+          onChange={handleMudarData}
+        />
+      )}
+
+      {Platform.OS === 'ios' && mostrarPicker && (
+        <TouchableOpacity style={styles.botaoConfirmar} onPress={() => setMostrarPicker(false)}>
+          <Text style={styles.botaoConfirmarTexto}>Confirmar data</Text>
+        </TouchableOpacity>
+      )}
     </>
   );
 }
@@ -35,9 +73,18 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderRadius: radius.sm,
     paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
   },
   inputIcone: { marginRight: spacing.sm },
-  input: { flex: 1, paddingVertical: spacing.md, fontSize: fontSizes.md, color: colors.text },
+  textoData: { fontSize: fontSizes.md, color: colors.text },
+  placeholder: { color: colors.textLight },
   inputError: { borderColor: colors.danger },
   erroTexto: { color: colors.danger, fontSize: fontSizes.sm, marginTop: spacing.xs },
+  botaoConfirmar: {
+    alignSelf: 'flex-end',
+    marginTop: spacing.xs,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.sm,
+  },
+  botaoConfirmarTexto: { color: colors.primary, fontWeight: '600', fontSize: fontSizes.sm },
 });
