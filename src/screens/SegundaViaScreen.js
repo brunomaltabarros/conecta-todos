@@ -25,7 +25,7 @@ export default function SegundaViaScreen({ route, navigation }) {
     const novosErros = {};
     if (!validarCampoObrigatorio(unidade)) novosErros.unidade = 'Selecione uma unidade';
     if (!validarCampoObrigatorio(documento)) novosErros.documento = 'Selecione o documento';
-    if (!validarData(data)) novosErros.data = 'Use o formato dd/mm/aaaa';
+    if (!validarData(data)) novosErros.data = 'Selecione uma data';
 
     setErros(novosErros);
     if (Object.keys(novosErros).length > 0) return;

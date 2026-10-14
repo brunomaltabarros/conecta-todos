@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Pressable, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, fontSizes, radius, shadow, toque } from '../theme/theme';
 import { podeCancelar } from '../utils/validation';
@@ -121,24 +121,38 @@ export default function AgendamentoCard({ item, tempoEsperaEstimado, posicaoNaFi
       )}
 
       {cancelavel && (
-        <TouchableOpacity
-          style={styles.cancelar}
+        <Pressable
           onPress={() => onCancelar(item)}
           accessibilityRole="button"
           accessibilityLabel={emEspera ? 'Sair da lista de espera' : 'Cancelar este agendamento'}
+          style={({ pressed }) => [styles.cancelar, pressed && styles.cancelarPressionado]}
         >
           <Ionicons name="close-circle-outline" size={16} color={colors.danger} />
-          <Text style={styles.cancelarTexto}>Cancelar agendamento</Text>
-        </TouchableOpacity>
+          <Text style={styles.cancelarTexto}>
+            {emEspera ? 'Sair da lista de espera' : 'Cancelar agendamento'}
+          </Text>
+        </Pressable>
       )}
 
       {bloqueado && (
-        <View style={styles.avisoBloqueado}>
-          <Ionicons name="lock-closed-outline" size={14} color={colors.textLight} />
-          <Text style={styles.avisoBloqueadoTexto}>
-            Cancelamento indisponível (menos de 1 dia para o atendimento)
-          </Text>
-        </View>
+        <>
+          <Pressable
+            disabled
+            accessibilityRole="button"
+            accessibilityLabel="Cancelar agendamento. Indisponível."
+            accessibilityState={{ disabled: true }}
+            style={[styles.cancelar, styles.cancelarInativo]}
+          >
+            <Ionicons name="close-circle-outline" size={16} color={colors.textLight} />
+            <Text style={styles.cancelarInativoTexto}>Cancelar agendamento</Text>
+          </Pressable>
+          <View style={styles.avisoBloqueado}>
+            <Ionicons name="lock-closed-outline" size={14} color={colors.textLight} />
+            <Text style={styles.avisoBloqueadoTexto}>
+              Falta menos de um dia para o atendimento
+            </Text>
+          </View>
+        </>
       )}
     </View>
   );
@@ -231,11 +245,15 @@ const styles = StyleSheet.create({
     minHeight: toque.minimo,
   },
   cancelarTexto: { color: colors.danger, fontWeight: '600', fontSize: fontSizes.sm },
+  cancelarPressionado: { opacity: 0.6 },
+  cancelarInativo: { opacity: 0.45 },
+  cancelarInativoTexto: { color: colors.textLight, fontWeight: '600', fontSize: fontSizes.sm },
   avisoBloqueado: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    marginTop: spacing.sm,
+    marginTop: 0,
+    marginBottom: spacing.xs,
   },
   avisoBloqueadoTexto: { color: colors.textLight, fontSize: fontSizes.sm, fontStyle: 'italic' },
 });

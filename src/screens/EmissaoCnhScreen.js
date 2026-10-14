@@ -25,7 +25,7 @@ export default function EmissaoCnhScreen({ route, navigation }) {
     const novosErros = {};
     if (!validarCampoObrigatorio(unidade)) novosErros.unidade = 'Selecione uma unidade';
     if (!validarCampoObrigatorio(categoria)) novosErros.categoria = 'Selecione a categoria da CNH';
-    if (!validarData(data)) novosErros.data = 'Use o formato dd/mm/aaaa';
+    if (!validarData(data)) novosErros.data = 'Selecione uma data';
 
     setErros(novosErros);
     if (Object.keys(novosErros).length > 0) return;

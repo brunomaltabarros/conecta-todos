@@ -1,6 +1,5 @@
 import * as Location from 'expo-location';
 
-// Calcula distância em km entre duas coordenadas (fórmula de Haversine)
 export function calcularDistanciaKm(lat1, lon1, lat2, lon2) {
   const R = 6371;
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
@@ -18,7 +17,7 @@ export function calcularDistanciaKm(lat1, lon1, lat2, lon2) {
 export async function obterLocalizacaoAtual() {
   const { status } = await Location.requestForegroundPermissionsAsync();
   if (status !== 'granted') {
-    return { ok: false, erro: 'Permissão de localização negada' };
+    return { ok: false, motivo: 'permissao', erro: 'Permissão de localização negada' };
   }
 
   try {
@@ -31,6 +30,6 @@ export async function obterLocalizacaoAtual() {
       longitude: posicao.coords.longitude,
     };
   } catch (erro) {
-    return { ok: false, erro: 'Não foi possível obter a localização' };
+    return { ok: false, motivo: 'falha', erro: 'Não foi possível obter a localização' };
   }
 }

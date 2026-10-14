@@ -23,7 +23,7 @@ export default function TransferenciaVeiculoScreen({ route, navigation }) {
     const novosErros = {};
     if (!unidade) novosErros.unidade = 'Selecione uma unidade';
     if (!validarPlaca(placa)) novosErros.placa = 'Placa inválida (ex: ABC1D23)';
-    if (!validarData(data)) novosErros.data = 'Use o formato dd/mm/aaaa';
+    if (!validarData(data)) novosErros.data = 'Selecione uma data';
 
     setErros(novosErros);
     if (Object.keys(novosErros).length > 0) return;

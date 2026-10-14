@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { Text, TouchableOpacity, Platform, StyleSheet } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, spacing, fontSizes, radius } from '../theme/theme';
+import { colors, spacing, fontSizes, radius, toque } from '../theme/theme';
+import { parseDataBr } from '../utils/validation';
 
-// Converte um objeto Date para o formato dd/mm/aaaa usado no resto do app
 function formatarDataExibicao(date) {
   const dia = String(date.getDate()).padStart(2, '0');
   const mes = String(date.getMonth() + 1).padStart(2, '0');
@@ -12,11 +12,15 @@ function formatarDataExibicao(date) {
   return `${dia}/${mes}/${ano}`;
 }
 
-const dataMinima = new Date();
 const dataMaxima = new Date(2100, 11, 31);
 
 export default function CampoData({ data, setData, erro }) {
   const [mostrarPicker, setMostrarPicker] = useState(false);
+
+  const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
+
+  const valorInicial = data ? parseDataBr(data) : hoje;
 
   function handleMudarData(evento, dataSelecionada) {
     if (Platform.OS === 'android') {
@@ -35,6 +39,8 @@ export default function CampoData({ data, setData, erro }) {
         style={[styles.inputWrapper, erro && styles.inputError]}
         onPress={() => setMostrarPicker(true)}
         activeOpacity={0.7}
+        accessibilityRole="button"
+        accessibilityLabel={data ? `Data escolhida: ${data}. Toque para trocar.` : 'Escolher a data do atendimento'}
       >
         <Ionicons name="calendar-outline" size={18} color={colors.textLight} style={styles.inputIcone} />
         <Text style={[styles.textoData, !data && styles.placeholder]}>
@@ -45,17 +51,22 @@ export default function CampoData({ data, setData, erro }) {
 
       {mostrarPicker && (
         <DateTimePicker
-          value={new Date()}
+          value={valorInicial}
           mode="date"
           display={Platform.OS === 'ios' ? 'inline' : 'default'}
-          minimumDate={dataMinima}
+          minimumDate={hoje}
           maximumDate={dataMaxima}
           onChange={handleMudarData}
         />
       )}
 
       {Platform.OS === 'ios' && mostrarPicker && (
-        <TouchableOpacity style={styles.botaoConfirmar} onPress={() => setMostrarPicker(false)}>
+        <TouchableOpacity
+          style={styles.botaoConfirmar}
+          onPress={() => setMostrarPicker(false)}
+          accessibilityRole="button"
+          accessibilityLabel="Confirmar a data escolhida e fechar o calendário"
+        >
           <Text style={styles.botaoConfirmarTexto}>Confirmar data</Text>
         </TouchableOpacity>
       )}
@@ -74,6 +85,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.md,
+    minHeight: toque.minimo,
   },
   inputIcone: { marginRight: spacing.sm },
   textoData: { fontSize: fontSizes.md, color: colors.text },
@@ -82,9 +94,12 @@ const styles = StyleSheet.create({
   erroTexto: { color: colors.danger, fontSize: fontSizes.sm, marginTop: spacing.xs },
   botaoConfirmar: {
     alignSelf: 'flex-end',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginTop: spacing.xs,
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    minHeight: toque.minimo,
   },
-  botaoConfirmarTexto: { color: colors.primary, fontWeight: '600', fontSize: fontSizes.sm },
+  botaoConfirmarTexto: { color: colors.primary, fontWeight: '600', fontSize: fontSizes.md },
 });

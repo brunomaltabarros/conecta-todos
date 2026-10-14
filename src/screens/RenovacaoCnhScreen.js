@@ -23,7 +23,7 @@ export default function RenovacaoCnhScreen({ route, navigation }) {
     const novosErros = {};
     if (!validarCampoObrigatorio(unidade)) novosErros.unidade = 'Selecione uma unidade';
     if (!validarCampoObrigatorio(registro)) novosErros.registro = 'Informe o número de registro da CNH';
-    if (!validarData(data)) novosErros.data = 'Use o formato dd/mm/aaaa';
+    if (!validarData(data)) novosErros.data = 'Selecione uma data';
 
     setErros(novosErros);
     if (Object.keys(novosErros).length > 0) return;

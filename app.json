@@ -28,7 +28,13 @@
     "plugins": [
       "expo-font",
       "expo-status-bar",
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "O ConectaTodos usa sua localização para ordenar as unidades de atendimento da mais próxima para a mais distante."
+        }
+      ]
     ]
   }
 }
