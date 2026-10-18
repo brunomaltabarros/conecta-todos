@@ -9,6 +9,7 @@ import SeletorOpcoes from '../components/SeletorOpcoes';
 import SeletorUnidade from '../components/SeletorUnidade';
 import CampoData from '../components/CampoData';
 import FormularioScroll from '../components/FormularioScroll';
+import FeedbackSucesso from '../components/FeedbackSucesso';
 import { useAgendamentos } from '../context/AgendamentosContext';
 
 const documentos = ['CNH', 'CRLV (documento do veículo)', 'RG'];
@@ -20,6 +21,9 @@ export default function SegundaViaScreen({ route, navigation }) {
   const [documento, setDocumento] = useState('');
   const [data, setData] = useState('');
   const [erros, setErros] = useState({});
+  const [enviando, setEnviando] = useState(false);
+  const [sucesso, setSucesso] = useState(false);
+  const [mensagemSucesso, setMensagemSucesso] = useState('');
 
   function handleConfirmar() {
     const novosErros = {};
@@ -41,8 +45,15 @@ export default function SegundaViaScreen({ route, navigation }) {
           {
             text: 'Entrar na lista de espera',
             onPress: () => {
-              entrarListaEspera(dados);
-              navigation.navigate('Abas', { screen: 'Agendamentos' });
+              setEnviando(true);
+              setTimeout(() => {
+                entrarListaEspera(dados);
+                setEnviando(false);
+                setMensagemSucesso(
+                  `Você entrou na lista de espera para segunda via de ${documento} em ${unidade}. Avisaremos se abrir uma vaga.`
+                );
+                setSucesso(true);
+              }, 700);
             },
           },
         ]
@@ -50,8 +61,17 @@ export default function SegundaViaScreen({ route, navigation }) {
       return;
     }
 
-    adicionarAgendamento(dados);
-    Alert.alert('Agendamento confirmado', `Segunda via de ${documento} em ${data} - ${unidade}`);
+    setEnviando(true);
+    setTimeout(() => {
+      adicionarAgendamento(dados);
+      setEnviando(false);
+      setMensagemSucesso(`Segunda via de ${documento} agendada para ${data}, em ${unidade}.`);
+      setSucesso(true);
+    }, 700);
+  }
+
+  function handleFecharSucesso() {
+    setSucesso(false);
     navigation.navigate('Abas', { screen: 'Agendamentos' });
   }
 
@@ -63,7 +83,13 @@ export default function SegundaViaScreen({ route, navigation }) {
       <SeletorUnidade unidade={unidade} setUnidade={setUnidade} erro={erros.unidade} />
       <CampoData data={data} setData={setData} erro={erros.data} />
 
-      <Botao titulo="Confirmar agendamento" onPress={handleConfirmar} />
+      <Botao titulo="Confirmar agendamento" onPress={handleConfirmar} carregando={enviando} />
+
+      <FeedbackSucesso
+        visivel={sucesso}
+        mensagem={mensagemSucesso}
+        onFechar={handleFecharSucesso}
+      />
     </FormularioScroll>
   );
 }
