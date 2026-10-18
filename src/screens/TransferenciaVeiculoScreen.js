@@ -9,6 +9,7 @@ import CampoTexto from '../components/CampoTexto';
 import SeletorUnidade from '../components/SeletorUnidade';
 import CampoData from '../components/CampoData';
 import FormularioScroll from '../components/FormularioScroll';
+import FeedbackSucesso from '../components/FeedbackSucesso';
 import { useAgendamentos } from '../context/AgendamentosContext';
 
 export default function TransferenciaVeiculoScreen({ route, navigation }) {
@@ -18,6 +19,9 @@ export default function TransferenciaVeiculoScreen({ route, navigation }) {
   const [placa, setPlaca] = useState('');
   const [data, setData] = useState('');
   const [erros, setErros] = useState({});
+  const [enviando, setEnviando] = useState(false);
+  const [sucesso, setSucesso] = useState(false);
+  const [mensagemSucesso, setMensagemSucesso] = useState('');
 
   function handleConfirmar() {
     const novosErros = {};
@@ -39,8 +43,15 @@ export default function TransferenciaVeiculoScreen({ route, navigation }) {
           {
             text: 'Entrar na lista de espera',
             onPress: () => {
-              entrarListaEspera(dados);
-              navigation.navigate('Abas', { screen: 'Agendamentos' });
+              setEnviando(true);
+              setTimeout(() => {
+                entrarListaEspera(dados);
+                setEnviando(false);
+                setMensagemSucesso(
+                  `Você entrou na lista de espera para transferência do veículo ${placa.toUpperCase()} em ${unidade}. Avisaremos se abrir uma vaga.`
+                );
+                setSucesso(true);
+              }, 700);
             },
           },
         ]
@@ -48,8 +59,17 @@ export default function TransferenciaVeiculoScreen({ route, navigation }) {
       return;
     }
 
-    adicionarAgendamento(dados);
-    Alert.alert('Agendamento confirmado', `Transferência do veículo ${placa.toUpperCase()} em ${data} - ${unidade}`);
+    setEnviando(true);
+    setTimeout(() => {
+      adicionarAgendamento(dados);
+      setEnviando(false);
+      setMensagemSucesso(`Transferência do veículo ${placa.toUpperCase()} agendada para ${data}, em ${unidade}.`);
+      setSucesso(true);
+    }, 700);
+  }
+
+  function handleFecharSucesso() {
+    setSucesso(false);
     navigation.navigate('Abas', { screen: 'Agendamentos' });
   }
 
@@ -70,7 +90,13 @@ export default function TransferenciaVeiculoScreen({ route, navigation }) {
       <SeletorUnidade unidade={unidade} setUnidade={setUnidade} erro={erros.unidade} />
       <CampoData data={data} setData={setData} erro={erros.data} />
 
-      <Botao titulo="Confirmar agendamento" onPress={handleConfirmar} />
+      <Botao titulo="Confirmar agendamento" onPress={handleConfirmar} carregando={enviando} />
+
+      <FeedbackSucesso
+        visivel={sucesso}
+        mensagem={mensagemSucesso}
+        onFechar={handleFecharSucesso}
+      />
     </FormularioScroll>
   );
 }
