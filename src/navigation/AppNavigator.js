@@ -11,6 +11,7 @@ import Logo from '../components/Logo';
 
 import LoginScreen from '../screens/LoginScreen';
 import CadastroScreen from '../screens/CadastroScreen';
+import EsqueciSenhaScreen from '../screens/EsqueciSenhaScreen';
 import HomeScreen from '../screens/HomeScreen';
 import ServicosScreen from '../screens/ServicosScreen';
 import MeusAgendamentosScreen from '../screens/MeusAgendamentosScreen';
@@ -30,7 +31,6 @@ const opcoesHeader = {
   headerTitleStyle: { fontWeight: 'bold' },
 };
 
-// Devolve a funcao de icone da aba: preenchido quando ativa, contornado quando inativa.
 function iconeAba(nome) {
   return ({ color, size, focused }) => (
     <Ionicons name={focused ? nome : `${nome}-outline`} size={size} color={color} />
@@ -119,17 +119,20 @@ export default function AppNavigator() {
               component={CadastroScreen}
               options={{ headerShown: false }}
             />
+            <Stack.Screen
+              name="EsqueciSenha"
+              component={EsqueciSenhaScreen}
+              options={{ headerShown: false }}
+            />
           </>
         ) : (
           <>
-            {/* As abas ficam na raiz. O header de cada aba vem do Tab.Navigator. */}
             <Stack.Screen
               name="Abas"
               component={AbasPrincipais}
               options={{ headerShown: false }}
             />
             <Stack.Screen name="Ajustes" component={AjustesScreen} options={{ title: 'Ajustes' }} />
-            {/* Formularios entram empilhados por cima das abas, com botao de voltar. */}
             <Stack.Screen name="EmissaoCnh" component={EmissaoCnhScreen} options={{ title: 'Emissão de CNH' }} />
             <Stack.Screen name="RenovacaoCnh" component={RenovacaoCnhScreen} options={{ title: 'Renovação de CNH' }} />
             <Stack.Screen name="TransferenciaVeiculo" component={TransferenciaVeiculoScreen} options={{ title: 'Transferência de Veículo' }} />

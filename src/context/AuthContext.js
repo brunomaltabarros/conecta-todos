@@ -30,6 +30,26 @@ export function AuthProvider({ children }) {
     return { ok: true };
   }
 
+  function existeConta(email) {
+    const emailNormalizado = email.trim().toLowerCase();
+    return contas.some((c) => c.email === emailNormalizado);
+  }
+
+  function redefinirSenha({ email, novaSenha }) {
+    const emailNormalizado = email.trim().toLowerCase();
+    const conta = contas.find((c) => c.email === emailNormalizado);
+
+    if (!conta) return { ok: false, erro: 'E-mail não cadastrado' };
+    if (conta.senha === novaSenha) {
+      return { ok: false, erro: 'A nova senha precisa ser diferente da anterior' };
+    }
+
+    setContas((atual) =>
+      atual.map((c) => (c.email === emailNormalizado ? { ...c, senha: novaSenha } : c))
+    );
+    return { ok: true };
+  }
+
   function atualizarPerfil({ nome, email }) {
     const emailNormalizado = email.trim().toLowerCase();
     const emailAtual = user.email;
@@ -68,7 +88,17 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, contas, cadastrar, login, atualizarPerfil, alterarSenha, logout }}
+      value={{
+        user,
+        contas,
+        cadastrar,
+        login,
+        existeConta,
+        redefinirSenha,
+        atualizarPerfil,
+        alterarSenha,
+        logout,
+      }}
     >
       {children}
     </AuthContext.Provider>

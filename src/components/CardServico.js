@@ -6,7 +6,14 @@ import { iconesPorServico } from '../utils/iconesServicos';
 
 export default function CardServico({ servico, onPress }) {
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.85}>
+    <TouchableOpacity
+      style={styles.card}
+      onPress={onPress}
+      activeOpacity={0.85}
+      accessibilityRole="button"
+      accessibilityLabel={`${servico.nome}. ${servico.orgao}, duração estimada ${servico.duracao}.`}
+      accessibilityHint={servico.descricao}
+    >
       <View style={styles.iconeCirculo}>
         <Ionicons
           name={iconesPorServico[servico.id] ?? 'document-outline'}
@@ -16,6 +23,9 @@ export default function CardServico({ servico, onPress }) {
       </View>
       <View style={{ flex: 1 }}>
         <Text style={styles.cardTitulo}>{servico.nome}</Text>
+        {servico.descricao && (
+          <Text style={styles.cardDescricao}>{servico.descricao}</Text>
+        )}
         <Text style={styles.cardSubtitulo}>{servico.orgao} · {servico.duracao}</Text>
       </View>
       <Ionicons name="chevron-forward" size={20} color={colors.textLight} />
@@ -46,5 +56,11 @@ const styles = StyleSheet.create({
     marginRight: spacing.md,
   },
   cardTitulo: { fontSize: fontSizes.md, fontWeight: '600', color: colors.text },
-  cardSubtitulo: { fontSize: fontSizes.sm, color: colors.textLight, marginTop: 2 },
+  cardDescricao: {
+    fontSize: fontSizes.sm,
+    color: colors.text,
+    marginTop: 3,
+    lineHeight: 17,
+  },
+  cardSubtitulo: { fontSize: fontSizes.sm, color: colors.textLight, marginTop: 4 },
 });
