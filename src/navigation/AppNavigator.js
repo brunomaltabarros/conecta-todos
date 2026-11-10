@@ -1,5 +1,8 @@
-import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import React, { useState } from 'react';
+import {
+  NavigationContainer,
+  useNavigationContainerRef,
+} from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,6 +11,7 @@ import { useAuth } from '../context/AuthContext';
 import { useAgendamentos } from '../context/AgendamentosContext';
 import { colors, fontSizes } from '../theme/theme';
 import Logo from '../components/Logo';
+import AnuncioDeRota from '../components/AnuncioDeRota';
 
 import LoginScreen from '../screens/LoginScreen';
 import CadastroScreen from '../screens/CadastroScreen';
@@ -103,9 +107,20 @@ function AbasPrincipais() {
 
 export default function AppNavigator() {
   const { user } = useAuth();
+  const navegacaoRef = useNavigationContainerRef();
+  const [rotaAtual, setRotaAtual] = useState(undefined);
+
+  function registrarRota() {
+    setRotaAtual(navegacaoRef.getCurrentRoute()?.name);
+  }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer
+      ref={navegacaoRef}
+      onReady={registrarRota}
+      onStateChange={registrarRota}
+    >
+      <AnuncioDeRota rota={rotaAtual} />
       <Stack.Navigator screenOptions={opcoesHeader}>
         {!user ? (
           <>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, fontSizes, radius } from '../theme/theme';
@@ -15,9 +15,15 @@ export default function CampoTexto({
   maxLength,
   secureTextEntry = false,
 }) {
+  const id = useId();
+  const idLabel = `${id}-label`;
+  const idErro = `${id}-erro`;
+
   return (
     <>
-      <Text style={styles.label}>{label}</Text>
+      <Text nativeID={idLabel} style={styles.label}>
+        {label}
+      </Text>
       <View style={[styles.inputWrapper, erro && styles.inputError]}>
         <Ionicons name={icone} size={18} color={colors.textLight} style={styles.inputIcone} />
         <TextInput
@@ -30,9 +36,17 @@ export default function CampoTexto({
           autoCapitalize={autoCapitalize}
           maxLength={maxLength}
           secureTextEntry={secureTextEntry}
+          accessibilityLabel={label}
+          aria-labelledby={idLabel}
+          aria-invalid={erro ? true : undefined}
+          aria-describedby={erro ? idErro : undefined}
         />
       </View>
-      {erro && <Text style={styles.erroTexto}>{erro}</Text>}
+      {erro && (
+        <Text nativeID={idErro} role="alert" style={styles.erroTexto}>
+          {erro}
+        </Text>
+      )}
     </>
   );
 }

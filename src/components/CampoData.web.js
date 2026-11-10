@@ -3,14 +3,6 @@ import { View, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, fontSizes, radius, toque } from '../theme/theme';
 
-/* Variante de web do CampoData. O Metro resolve .web.js antes de .js quando a
-   plataforma e web, entao o arquivo nativo continua intocado.
-   O @react-native-community/datetimepicker nao roda no navegador: aqui usamos
-   o <input type="date">, que ja traz calendario, teclado e leitor de tela de graca.
-
-   As conversoes abaixo sao so de texto, de proposito. new Date('2026-11-09')
-   e interpretado como UTC e volta um dia atras em fuso negativo como o do Brasil. */
-
 function paraISO(dataBr) {
   if (!dataBr) return '';
   const [dia, mes, ano] = dataBr.split('/');
@@ -88,8 +80,6 @@ const estiloLabel = {
   marginBottom: spacing.xs,
 };
 
-/* A borda do campo fica no View de fora. O outline de foco do navegador e
-   mantido de proposito: tirar ele deixaria o campo inalcancavel por teclado. */
 const estiloInput = {
   flex: 1,
   minWidth: 0,

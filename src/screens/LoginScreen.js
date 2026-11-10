@@ -55,6 +55,8 @@ export default function LoginScreen({ navigation }) {
           onChangeText={setEmail}
           autoCapitalize="none"
           keyboardType="email-address"
+          accessibilityLabel="E-mail"
+          aria-invalid={erros.email ? true : undefined}
         />
         {erros.email && <Text style={styles.erroTexto}>{erros.email}</Text>}
 
@@ -65,6 +67,8 @@ export default function LoginScreen({ navigation }) {
           value={senha}
           onChangeText={setSenha}
           secureTextEntry
+          accessibilityLabel="Senha"
+          aria-invalid={erros.senha ? true : undefined}
         />
         {erros.senha && <Text style={styles.erroTexto}>{erros.senha}</Text>}
 

@@ -108,6 +108,7 @@ export default function AgendamentoCard({ item, tempoEsperaEstimado, posicaoNaFi
             value={comentario}
             onChangeText={setComentario}
             multiline
+            accessibilityLabel="Comentário sobre o atendimento, opcional"
           />
           <TouchableOpacity
             style={styles.enviarBotao}

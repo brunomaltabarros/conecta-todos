@@ -29,6 +29,8 @@ export default function ServicosScreen({ navigation }) {
           value={busca}
           onChangeText={setBusca}
           autoCapitalize="none"
+          accessibilityLabel="Buscar serviço ou órgão"
+          role="searchbox"
         />
       </View>
 
