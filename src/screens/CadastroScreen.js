@@ -23,8 +23,9 @@ export default function CadastroScreen({ navigation }) {
   const [senha, setSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
   const [erros, setErros] = useState({});
+  const [enviando, setEnviando] = useState(false);
 
-  function handleCadastrar() {
+  async function handleCadastrar() {
     const novosErros = {};
     if (!validarCampoObrigatorio(nome)) novosErros.nome = 'Informe seu nome completo';
     if (!validarEmail(email)) novosErros.email = 'Informe um e-mail válido';
@@ -36,13 +37,18 @@ export default function CadastroScreen({ navigation }) {
       return;
     }
 
-    const resultado = cadastrar({ nome, email, senha });
-    if (!resultado.ok) {
-      setErros({ email: resultado.erro });
-      return;
-    }
-
     setErros({});
+    setEnviando(true);
+
+    const resultado = await cadastrar({ nome, email, senha });
+    if (!resultado.ok) {
+      setEnviando(false);
+      if (resultado.erro === 'Este e-mail já está cadastrado') {
+        setErros({ email: resultado.erro });
+      } else {
+        setErros({ geral: resultado.erro });
+      }
+    }
   }
 
   return (
@@ -96,7 +102,13 @@ export default function CadastroScreen({ navigation }) {
         />
         {erros.confirmarSenha && <Text style={styles.erroTexto}>{erros.confirmarSenha}</Text>}
 
-        <Botao titulo="Criar conta" onPress={handleCadastrar} />
+        {erros.geral && (
+          <Text style={styles.erroTexto} accessibilityLiveRegion="polite">
+            {erros.geral}
+          </Text>
+        )}
+
+        <Botao titulo="Criar conta" onPress={handleCadastrar} carregando={enviando} />
 
         <TouchableOpacity
           onPress={() => navigation.navigate('Login')}
