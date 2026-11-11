@@ -7,31 +7,36 @@ import { iconesPorServico } from '../utils/iconesServicos';
 export default function CabecalhoServico({ servico }) {
   return (
     <View style={styles.cabecalho}>
-      <View style={styles.icone}>
-        <Ionicons
-          name={iconesPorServico[servico.id] ?? 'document-outline'}
-          size={24}
-          color={colors.secondary}
-        />
+      <View style={styles.linha}>
+        <View style={styles.icone}>
+          <Ionicons
+            name={iconesPorServico[servico.id] ?? 'document-outline'}
+            size={24}
+            color={colors.secondary}
+          />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.titulo}>{servico.nome}</Text>
+          <Text style={styles.subtitulo}>{servico.orgao} · duração estimada {servico.duracao}</Text>
+        </View>
       </View>
-      <View style={{ flex: 1 }}>
-        <Text style={styles.titulo}>{servico.nome}</Text>
-        <Text style={styles.subtitulo}>{servico.orgao} · duração estimada {servico.duracao}</Text>
-      </View>
+
+      {servico.descricao && (
+        <Text style={styles.descricao}>{servico.descricao}</Text>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   cabecalho: {
-    flexDirection: 'row',
-    alignItems: 'center',
     backgroundColor: colors.card,
     borderRadius: radius.md,
     padding: spacing.md,
     marginBottom: spacing.lg,
     ...shadow.card,
   },
+  linha: { flexDirection: 'row', alignItems: 'center' },
   icone: {
     width: 48,
     height: 48,
@@ -45,4 +50,10 @@ const styles = StyleSheet.create({
   },
   titulo: { fontSize: fontSizes.lg, fontWeight: 'bold', color: colors.text },
   subtitulo: { fontSize: fontSizes.sm, color: colors.textLight, marginTop: 2 },
+  descricao: {
+    fontSize: fontSizes.sm,
+    color: colors.text,
+    marginTop: spacing.sm,
+    lineHeight: 18,
+  },
 });

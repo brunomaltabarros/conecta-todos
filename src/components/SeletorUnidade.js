@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { unidades } from '../data/services';
+import { unidades, horarioPorUnidade } from '../data/services';
 import { coordenadasPorUnidade } from '../data/localizacaoUnidades';
 import { useAgendamentos } from '../context/AgendamentosContext';
 import { obterLocalizacaoAtual, calcularDistanciaKm } from '../utils/localizacao';
@@ -11,7 +11,7 @@ import SeletorOpcoes from './SeletorOpcoes';
 export default function SeletorUnidade({ unidade, setUnidade, erro }) {
   const { tempoEsperaEstimado } = useAgendamentos();
   const [localizacao, setLocalizacao] = useState(null);
-  const [statusGps, setStatusGps] = useState('carregando'); 
+  const [statusGps, setStatusGps] = useState('carregando');
 
   useEffect(() => {
     let ativo = true;
@@ -53,14 +53,14 @@ export default function SeletorUnidade({ unidade, setUnidade, erro }) {
   });
 
   const opcoesOrdenadas = unidadesOrdenadas.map((u) => u.nome);
-
   const subtitulos = Object.fromEntries(
     unidadesOrdenadas.map((u) => {
-      const espera = `Espera estimada: ${tempoEsperaEstimado(u.nome)}`;
-      if (u.distanciaKm !== null) {
-        return [u.nome, `${espera} · ${u.distanciaKm.toFixed(1)} km de você`];
-      }
-      return [u.nome, espera];
+      const partes = [];
+      const horario = horarioPorUnidade[u.nome];
+      if (horario) partes.push(horario);
+      if (u.distanciaKm !== null) partes.push(`${u.distanciaKm.toFixed(1)} km de você`);
+      partes.push(`Espera estimada: ${tempoEsperaEstimado(u.nome)}`);
+      return [u.nome, partes.join('\n')];
     })
   );
 

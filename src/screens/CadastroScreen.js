@@ -68,6 +68,8 @@ export default function CadastroScreen({ navigation }) {
           placeholder="Seu nome"
           value={nome}
           onChangeText={setNome}
+          accessibilityLabel="Nome completo"
+          aria-invalid={erros.nome ? true : undefined}
         />
         {erros.nome && <Text style={styles.erroTexto}>{erros.nome}</Text>}
 
@@ -79,6 +81,8 @@ export default function CadastroScreen({ navigation }) {
           onChangeText={setEmail}
           autoCapitalize="none"
           keyboardType="email-address"
+          accessibilityLabel="E-mail"
+          aria-invalid={erros.email ? true : undefined}
         />
         {erros.email && <Text style={styles.erroTexto}>{erros.email}</Text>}
 
@@ -89,6 +93,8 @@ export default function CadastroScreen({ navigation }) {
           value={senha}
           onChangeText={setSenha}
           secureTextEntry
+          accessibilityLabel="Senha"
+          aria-invalid={erros.senha ? true : undefined}
         />
         {erros.senha && <Text style={styles.erroTexto}>{erros.senha}</Text>}
 
@@ -99,6 +105,8 @@ export default function CadastroScreen({ navigation }) {
           value={confirmarSenha}
           onChangeText={setConfirmarSenha}
           secureTextEntry
+          accessibilityLabel="Confirmar senha"
+          aria-invalid={erros.confirmarSenha ? true : undefined}
         />
         {erros.confirmarSenha && <Text style={styles.erroTexto}>{erros.confirmarSenha}</Text>}
 

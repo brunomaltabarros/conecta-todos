@@ -1,13 +1,5 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  TouchableOpacity,
-} from 'react-native';
+import {View,Text,TextInput,StyleSheet,KeyboardAvoidingView,Platform,TouchableOpacity,} from 'react-native';
 
 import { useAuth } from '../context/AuthContext';
 import { validarEmail, validarSenha } from '../utils/validation';
@@ -61,6 +53,8 @@ export default function LoginScreen({ navigation }) {
           onChangeText={setEmail}
           autoCapitalize="none"
           keyboardType="email-address"
+          accessibilityLabel="E-mail"
+          aria-invalid={erros.email ? true : undefined}
         />
         {erros.email && <Text style={styles.erroTexto}>{erros.email}</Text>}
 
@@ -71,6 +65,8 @@ export default function LoginScreen({ navigation }) {
           value={senha}
           onChangeText={setSenha}
           secureTextEntry
+          accessibilityLabel="Senha"
+          aria-invalid={erros.senha ? true : undefined}
         />
         {erros.senha && <Text style={styles.erroTexto}>{erros.senha}</Text>}
 
@@ -81,6 +77,15 @@ export default function LoginScreen({ navigation }) {
         )}
 
         <Botao titulo="Entrar" onPress={handleLogin} carregando={enviando} />
+
+        <TouchableOpacity
+          onPress={() => navigation.navigate('EsqueciSenha')}
+          style={styles.linkSenha}
+          accessibilityRole="button"
+          accessibilityLabel="Esqueci minha senha"
+        >
+          <Text style={styles.linkTexto}>Esqueci minha senha</Text>
+        </TouchableOpacity>
 
         <TouchableOpacity
           onPress={() => navigation.navigate('Cadastro')}
@@ -118,10 +123,16 @@ const styles = StyleSheet.create({
   },
   inputError: { borderColor: colors.danger },
   erroTexto: { color: colors.danger, fontSize: fontSizes.sm, marginBottom: spacing.sm },
-  linkCadastro: {
+  linkSenha: {
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: spacing.xs,
+    paddingVertical: spacing.sm,
+    minHeight: toque.minimo,
+  },
+  linkCadastro: {
+    alignItems: 'center',
+    justifyContent: 'center',
     paddingVertical: spacing.sm,
     minHeight: toque.minimo,
   },

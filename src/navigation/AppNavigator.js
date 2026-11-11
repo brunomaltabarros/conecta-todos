@@ -1,5 +1,8 @@
-import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import React, { useState } from 'react';
+import {
+  NavigationContainer,
+  useNavigationContainerRef,
+} from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,9 +11,11 @@ import { useAuth } from '../context/AuthContext';
 import { useAgendamentos } from '../context/AgendamentosContext';
 import { colors, fontSizes } from '../theme/theme';
 import Logo from '../components/Logo';
+import AnuncioDeRota from '../components/AnuncioDeRota';
 
 import LoginScreen from '../screens/LoginScreen';
 import CadastroScreen from '../screens/CadastroScreen';
+import EsqueciSenhaScreen from '../screens/EsqueciSenhaScreen';
 import HomeScreen from '../screens/HomeScreen';
 import ServicosScreen from '../screens/ServicosScreen';
 import MeusAgendamentosScreen from '../screens/MeusAgendamentosScreen';
@@ -30,7 +35,6 @@ const opcoesHeader = {
   headerTitleStyle: { fontWeight: 'bold' },
 };
 
-// Devolve a funcao de icone da aba: preenchido quando ativa, contornado quando inativa.
 function iconeAba(nome) {
   return ({ color, size, focused }) => (
     <Ionicons name={focused ? nome : `${nome}-outline`} size={size} color={color} />
@@ -103,9 +107,20 @@ function AbasPrincipais() {
 
 export default function AppNavigator() {
   const { user } = useAuth();
+  const navegacaoRef = useNavigationContainerRef();
+  const [rotaAtual, setRotaAtual] = useState(undefined);
+
+  function registrarRota() {
+    setRotaAtual(navegacaoRef.getCurrentRoute()?.name);
+  }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer
+      ref={navegacaoRef}
+      onReady={registrarRota}
+      onStateChange={registrarRota}
+    >
+      <AnuncioDeRota rota={rotaAtual} />
       <Stack.Navigator screenOptions={opcoesHeader}>
         {!user ? (
           <>
@@ -119,17 +134,20 @@ export default function AppNavigator() {
               component={CadastroScreen}
               options={{ headerShown: false }}
             />
+            <Stack.Screen
+              name="EsqueciSenha"
+              component={EsqueciSenhaScreen}
+              options={{ headerShown: false }}
+            />
           </>
         ) : (
           <>
-            {/* As abas ficam na raiz. O header de cada aba vem do Tab.Navigator. */}
             <Stack.Screen
               name="Abas"
               component={AbasPrincipais}
               options={{ headerShown: false }}
             />
             <Stack.Screen name="Ajustes" component={AjustesScreen} options={{ title: 'Ajustes' }} />
-            {/* Formularios entram empilhados por cima das abas, com botao de voltar. */}
             <Stack.Screen name="EmissaoCnh" component={EmissaoCnhScreen} options={{ title: 'Emissão de CNH' }} />
             <Stack.Screen name="RenovacaoCnh" component={RenovacaoCnhScreen} options={{ title: 'Renovação de CNH' }} />
             <Stack.Screen name="TransferenciaVeiculo" component={TransferenciaVeiculoScreen} options={{ title: 'Transferência de Veículo' }} />
