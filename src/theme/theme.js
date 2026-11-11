@@ -18,8 +18,6 @@ export const spacing = { xs: 4, sm: 8, md: 16, lg: 24, xl: 32 };
 
 export const fontSizes = { sm: 12, md: 14, lg: 16, xl: 20, xxl: 26 };
 
-// Token de família tipográfica: usa a fonte padrão do sistema em cada plataforma,
-// que em ambos os casos é uma fonte sem serifa (System no iOS, Roboto no Android).
 export const fontFamily = {
   base: Platform.select({
     ios: 'System',
@@ -47,10 +45,7 @@ export const shadow = {
   },
 };
 
-// Tabela de contraste validada (WCAG 2.1) para as combinações de cor/fundo
-// efetivamente usadas na interface. Razão calculada pela fórmula oficial de
-// luminância relativa. Critério: AA exige 4,5:1 para texto normal e 3:1 para
-// texto grande/elementos de interface; AAA exige 7:1.
+
 export const contraste = [
   { combinacao: 'Texto branco sobre botão primário (azul)', razao: 7.69, nivel: 'AAA' },
   { combinacao: 'Texto/ícone azul institucional sobre fundo da tela', razao: 6.97, nivel: 'AA' },
