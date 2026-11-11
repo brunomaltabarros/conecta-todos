@@ -20,8 +20,9 @@ export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [erros, setErros] = useState({});
+  const [enviando, setEnviando] = useState(false);
 
-  function handleLogin() {
+  async function handleLogin() {
     const novosErros = {};
     if (!validarEmail(email)) novosErros.email = 'Informe um e-mail válido';
     if (!validarSenha(senha)) novosErros.senha = 'A senha deve ter pelo menos 6 caracteres';
@@ -31,17 +32,14 @@ export default function LoginScreen({ navigation }) {
       return;
     }
 
-    const resultado = login(email, senha);
-    if (!resultado.ok) {
-      setErros(
-        resultado.erro === 'Senha incorreta'
-          ? { senha: resultado.erro }
-          : { email: resultado.erro }
-      );
-      return;
-    }
-
     setErros({});
+    setEnviando(true);
+
+    const resultado = await login(email, senha);
+    if (!resultado.ok) {
+      setEnviando(false);
+      setErros({ geral: resultado.erro });
+    }
   }
 
   return (
@@ -76,7 +74,13 @@ export default function LoginScreen({ navigation }) {
         />
         {erros.senha && <Text style={styles.erroTexto}>{erros.senha}</Text>}
 
-        <Botao titulo="Entrar" onPress={handleLogin} />
+        {erros.geral && (
+          <Text style={styles.erroTexto} accessibilityLiveRegion="polite">
+            {erros.geral}
+          </Text>
+        )}
+
+        <Botao titulo="Entrar" onPress={handleLogin} carregando={enviando} />
 
         <TouchableOpacity
           onPress={() => navigation.navigate('Cadastro')}
