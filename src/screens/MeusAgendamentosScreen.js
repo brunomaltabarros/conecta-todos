@@ -1,10 +1,11 @@
 import React from 'react';
-import { View, Text, FlatList, TouchableOpacity, Alert, StyleSheet } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, fontSizes, radius, toque } from '../theme/theme';
 import { useAgendamentos } from '../context/AgendamentosContext';
 import { usePreferencias } from '../context/PreferenciasContext';
 import AgendamentoCard from '../components/AgendamentoCard';
+import { alerta } from '../utils/alerta';
 
 export default function MeusAgendamentosScreen({ navigation }) {
   const { agendamentos, cancelarAgendamento, finalizarAgendamento, tempoEsperaEstimado, posicaoNaFila } = useAgendamentos();
@@ -17,7 +18,7 @@ export default function MeusAgendamentosScreen({ navigation }) {
     }
 
     const saindoDaFila = item.status === 'espera';
-    Alert.alert(
+    alerta(
       saindoDaFila ? 'Sair da lista de espera' : 'Cancelar agendamento',
       `Deseja realmente ${saindoDaFila ? 'sair da lista de espera' : 'cancelar o agendamento'} de ${item.servico} em ${item.data}?`,
       [

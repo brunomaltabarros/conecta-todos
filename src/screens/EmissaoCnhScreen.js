@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Alert } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 import { validarCampoObrigatorio, validarData } from '../utils/validation';
 import { colors } from '../theme/theme';
@@ -11,6 +11,7 @@ import CampoData from '../components/CampoData';
 import FormularioScroll from '../components/FormularioScroll';
 import FeedbackSucesso from '../components/FeedbackSucesso';
 import { useAgendamentos } from '../context/AgendamentosContext';
+import { alerta } from '../utils/alerta';
 
 const categorias = ['A - Motocicleta', 'B - Carro', 'AB - Moto e Carro'];
 
@@ -37,7 +38,7 @@ export default function EmissaoCnhScreen({ route, navigation }) {
     const dados = { servico: servico.nome, detalhe: `Categoria: ${categoria}`, unidade, data };
 
     if (unidadeIndisponivel(unidade, data)) {
-      Alert.alert(
+      alerta(
         'Sem horário disponível',
         `Não há vaga em ${unidade} para ${data}. Deseja entrar na lista de espera? Avisamos se abrir uma vaga por cancelamento.`,
         [

@@ -1,10 +1,11 @@
 import React from 'react';
-import { View, Text, ScrollView, Switch, TouchableOpacity, Alert, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, Switch, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 import { usePreferencias } from '../context/PreferenciasContext';
 import { useAgendamentos } from '../context/AgendamentosContext';
 import { colors, spacing, fontSizes, radius, shadow, toque } from '../theme/theme';
+import { alerta } from '../utils/alerta';
 
 function LinhaSwitch({ icone, titulo, descricao, valor, onChange }) {
   return (
@@ -49,11 +50,11 @@ export default function AjustesScreen() {
 
   function handleLimpar() {
     if (total === 0) {
-      Alert.alert('Nada para limpar', 'Você ainda não tem nenhum agendamento registrado.');
+      alerta('Nada para limpar', 'Você ainda não tem nenhum agendamento registrado.');
       return;
     }
 
-    Alert.alert(
+    alerta(
       'Limpar meus agendamentos',
       `Isso apaga os ${total} registros da sua lista, incluindo os cancelados e os concluídos. Não é possível desfazer.`,
       [

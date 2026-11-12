@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Alert, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 import { useAuth } from '../context/AuthContext';
@@ -13,6 +13,7 @@ import {
 import { colors, spacing, fontSizes, radius, shadow } from '../theme/theme';
 import Botao from '../components/Botao';
 import CampoTexto from '../components/CampoTexto';
+import { alerta } from '../utils/alerta';
 
 export default function PerfilScreen({ navigation }) {
   const { user, atualizarPerfil, alterarSenha, logout } = useAuth();
@@ -21,15 +22,17 @@ export default function PerfilScreen({ navigation }) {
   const [nome, setNome] = useState(user?.nome ?? '');
   const [email, setEmail] = useState(user?.email ?? '');
   const [errosPerfil, setErrosPerfil] = useState({});
+  const [salvandoPerfil, setSalvandoPerfil] = useState(false);
 
   const [senhaAtual, setSenhaAtual] = useState('');
   const [novaSenha, setNovaSenha] = useState('');
   const [confirmarNovaSenha, setConfirmarNovaSenha] = useState('');
   const [errosSenha, setErrosSenha] = useState({});
+  const [salvandoSenha, setSalvandoSenha] = useState(false);
 
   const inicial = user?.nome?.charAt(0)?.toUpperCase() ?? '?';
 
-  function handleSalvarPerfil() {
+  async function handleSalvarPerfil() {
     const novosErros = {};
     if (!validarCampoObrigatorio(nome)) novosErros.nome = 'Informe seu nome completo';
     if (!validarEmail(email)) novosErros.email = 'Informe um e-mail válido';
@@ -39,17 +42,20 @@ export default function PerfilScreen({ navigation }) {
       return;
     }
 
-    const resultado = atualizarPerfil({ nome, email });
+    setErrosPerfil({});
+    setSalvandoPerfil(true);
+    const resultado = await atualizarPerfil({ nome, email });
+    setSalvandoPerfil(false);
+
     if (!resultado.ok) {
       setErrosPerfil({ email: resultado.erro });
       return;
     }
 
-    setErrosPerfil({});
-    Alert.alert('Perfil atualizado', 'Seus dados foram salvos.');
+    alerta('Perfil atualizado', 'Seus dados foram salvos.');
   }
 
-  function handleAlterarSenha() {
+  async function handleAlterarSenha() {
     const novosErros = {};
     if (!validarCampoObrigatorio(senhaAtual)) novosErros.senhaAtual = 'Informe sua senha atual';
     if (!validarSenha(novaSenha)) novosErros.novaSenha = 'A nova senha deve ter pelo menos 6 caracteres';
@@ -62,17 +68,20 @@ export default function PerfilScreen({ navigation }) {
       return;
     }
 
-    const resultado = alterarSenha({ senhaAtual, novaSenha });
+    setErrosSenha({});
+    setSalvandoSenha(true);
+    const resultado = await alterarSenha({ senhaAtual, novaSenha });
+    setSalvandoSenha(false);
+
     if (!resultado.ok) {
       setErrosSenha({ senhaAtual: resultado.erro });
       return;
     }
 
-    setErrosSenha({});
     setSenhaAtual('');
     setNovaSenha('');
     setConfirmarNovaSenha('');
-    Alert.alert('Senha alterada', 'Use a nova senha no próximo acesso.');
+    alerta('Senha alterada', 'Use a nova senha no próximo acesso.');
   }
 
   function handleLogout() {
@@ -81,7 +90,7 @@ export default function PerfilScreen({ navigation }) {
       return;
     }
 
-    Alert.alert('Sair da conta', 'Deseja realmente sair?', [
+    alerta('Sair da conta', 'Deseja realmente sair?', [
       { text: 'Voltar', style: 'cancel' },
       { text: 'Sair', style: 'destructive', onPress: logout },
     ]);
@@ -119,7 +128,12 @@ export default function PerfilScreen({ navigation }) {
           keyboardType="email-address"
           erro={errosPerfil.email}
         />
-        <Botao titulo="Salvar alterações" onPress={handleSalvarPerfil} cor={colors.primary} />
+        <Botao
+          titulo="Salvar alterações"
+          onPress={handleSalvarPerfil}
+          cor={colors.primary}
+          carregando={salvandoPerfil}
+        />
       </View>
 
       <View style={styles.secao}>
@@ -154,7 +168,12 @@ export default function PerfilScreen({ navigation }) {
           secureTextEntry
           erro={errosSenha.confirmarNovaSenha}
         />
-        <Botao titulo="Alterar senha" onPress={handleAlterarSenha} cor={colors.primary} />
+        <Botao
+          titulo="Alterar senha"
+          onPress={handleAlterarSenha}
+          cor={colors.primary}
+          carregando={salvandoSenha}
+        />
       </View>
 
       <TouchableOpacity

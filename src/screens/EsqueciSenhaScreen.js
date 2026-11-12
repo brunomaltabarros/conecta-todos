@@ -19,38 +19,48 @@ import FeedbackSucesso from '../components/FeedbackSucesso';
 import Logo from '../components/Logo';
 
 export default function EsqueciSenhaScreen({ navigation }) {
-  const { existeConta, redefinirSenha } = useAuth();
+  const { solicitarCodigo, redefinirSenha } = useAuth();
 
   const [etapa, setEtapa] = useState('email');
   const [email, setEmail] = useState('');
+  const [codigo, setCodigo] = useState('');
   const [novaSenha, setNovaSenha] = useState('');
   const [confirmacao, setConfirmacao] = useState('');
   const [erros, setErros] = useState({});
   const [enviando, setEnviando] = useState(false);
   const [sucesso, setSucesso] = useState(false);
 
-  function handleContinuar() {
+  async function handleContinuar() {
     if (!validarEmail(email)) {
       setErros({ email: 'Informe um e-mail válido' });
       return;
     }
-    if (!existeConta(email)) {
-      setErros({ email: 'E-mail não cadastrado' });
+
+    setErros({});
+    setEnviando(true);
+    const resultado = await solicitarCodigo(email);
+    setEnviando(false);
+
+    if (!resultado.ok) {
+      setErros({ email: resultado.erro });
       return;
     }
-    setErros({});
     setEtapa('senha');
   }
 
   function handleTrocarEmail() {
     setErros({});
+    setCodigo('');
     setNovaSenha('');
     setConfirmacao('');
     setEtapa('email');
   }
 
-  function handleSalvar() {
+  async function handleSalvar() {
     const novosErros = {};
+    if (codigo.trim().length !== 6) {
+      novosErros.codigo = 'O código tem 6 dígitos';
+    }
     if (!validarSenha(novaSenha)) {
       novosErros.novaSenha = 'A senha deve ter pelo menos 6 caracteres';
     }
@@ -65,16 +75,14 @@ export default function EsqueciSenhaScreen({ navigation }) {
 
     setErros({});
     setEnviando(true);
-    setTimeout(() => {
-      const resultado = redefinirSenha({ email, novaSenha });
-      setEnviando(false);
+    const resultado = await redefinirSenha({ email, codigo, novaSenha });
+    setEnviando(false);
 
-      if (!resultado.ok) {
-        setErros({ novaSenha: resultado.erro });
-        return;
-      }
-      setSucesso(true);
-    }, 700);
+    if (!resultado.ok) {
+      setErros({ codigo: resultado.erro });
+      return;
+    }
+    setSucesso(true);
   }
 
   function handleFecharSucesso() {
@@ -101,12 +109,12 @@ export default function EsqueciSenhaScreen({ navigation }) {
             {etapa === 'email' ? 'Passo 1 de 2' : 'Passo 2 de 2'}
           </Text>
           <Text style={styles.titulo}>
-            {etapa === 'email' ? 'Qual é o seu e-mail?' : 'Escolha uma nova senha'}
+            {etapa === 'email' ? 'Qual é o seu e-mail?' : 'Informe o código e a nova senha'}
           </Text>
           <Text style={styles.explicacao}>
             {etapa === 'email'
-              ? 'Informe o e-mail da conta. Vamos conferir se ele está cadastrado antes de continuar.'
-              : 'A senha anterior deixa de valer assim que você salvar. Depois é só entrar com a nova.'}
+              ? 'Informe o e-mail da conta. Enviaremos um código de confirmação antes de liberar a troca.'
+              : 'Digite o código de 6 dígitos que enviamos e escolha a nova senha. O código vale por 15 minutos.'}
           </Text>
 
           {etapa === 'email' ? (
@@ -122,7 +130,7 @@ export default function EsqueciSenhaScreen({ navigation }) {
                 autoCapitalize="none"
               />
               <View style={styles.acao}>
-                <Botao titulo="Continuar" onPress={handleContinuar} />
+                <Botao titulo="Continuar" onPress={handleContinuar} carregando={enviando} />
               </View>
             </>
           ) : (
@@ -142,6 +150,17 @@ export default function EsqueciSenhaScreen({ navigation }) {
                 </TouchableOpacity>
               </View>
 
+              <CampoTexto
+                label="Código de confirmação"
+                icone="key-outline"
+                placeholder="000000"
+                value={codigo}
+                onChangeText={setCodigo}
+                erro={erros.codigo}
+                keyboardType="number-pad"
+                maxLength={6}
+                autoCapitalize="none"
+              />
               <CampoTexto
                 label="Nova senha"
                 icone="lock-closed-outline"
@@ -175,8 +194,8 @@ export default function EsqueciSenhaScreen({ navigation }) {
           <View style={styles.aviso}>
             <Ionicons name="information-circle-outline" size={16} color={colors.textLight} />
             <Text style={styles.avisoTexto}>
-              Nesta versão a redefinição acontece no próprio aparelho. Na versão com servidor,
-              enviaremos um código de confirmação para o e-mail antes de liberar a troca.
+              Nesta versão o código aparece no console do servidor, no lugar de ser enviado por
+              e-mail. A troca em si já acontece no banco de dados, com a senha guardada em hash.
             </Text>
           </View>
 

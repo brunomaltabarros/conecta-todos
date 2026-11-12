@@ -6,7 +6,6 @@ const AuthContext = createContext();
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
-  const [contas, setContas] = useState([]);
 
   async function cadastrar({ nome, email, senha }) {
     try {
@@ -30,56 +29,41 @@ export function AuthProvider({ children }) {
     }
   }
 
-  function existeConta(email) {
-    const emailNormalizado = email.trim().toLowerCase();
-    return contas.some((c) => c.email === emailNormalizado);
-  }
-
-  function redefinirSenha({ email, novaSenha }) {
-    const emailNormalizado = email.trim().toLowerCase();
-    const conta = contas.find((c) => c.email === emailNormalizado);
-
-    if (!conta) return { ok: false, erro: 'E-mail não cadastrado' };
-    if (conta.senha === novaSenha) {
-      return { ok: false, erro: 'A nova senha precisa ser diferente da anterior' };
+  async function atualizarPerfil({ nome, email }) {
+    try {
+      const dados = await api.salvarPerfil(token, nome.trim(), email.trim());
+      setUser({ nome: dados.usuario.nome, email: dados.usuario.email });
+      return { ok: true };
+    } catch (erro) {
+      return { ok: false, erro: erro.message };
     }
-
-    setContas((atual) =>
-      atual.map((c) => (c.email === emailNormalizado ? { ...c, senha: novaSenha } : c))
-    );
-    return { ok: true };
   }
 
-  function atualizarPerfil({ nome, email }) {
-    const emailNormalizado = email.trim().toLowerCase();
-    const emailAtual = user.email;
-
-    const emailEmUso = contas.some(
-      (c) => c.email === emailNormalizado && c.email !== emailAtual
-    );
-    if (emailEmUso) {
-      return { ok: false, erro: 'Já existe uma conta com esse e-mail' };
+  async function alterarSenha({ senhaAtual, novaSenha }) {
+    try {
+      await api.trocarSenha(token, senhaAtual, novaSenha);
+      return { ok: true };
+    } catch (erro) {
+      return { ok: false, erro: erro.message };
     }
-
-    setContas((atual) =>
-      atual.map((c) =>
-        c.email === emailAtual ? { ...c, nome: nome.trim(), email: emailNormalizado } : c
-      )
-    );
-    setUser({ nome: nome.trim(), email: emailNormalizado });
-    return { ok: true };
   }
 
-  function alterarSenha({ senhaAtual, novaSenha }) {
-    const conta = contas.find((c) => c.email === user.email);
+  async function solicitarCodigo(email) {
+    try {
+      await api.pedirCodigo(email.trim());
+      return { ok: true };
+    } catch (erro) {
+      return { ok: false, erro: erro.message };
+    }
+  }
 
-    if (!conta) return { ok: false, erro: 'Conta não encontrada' };
-    if (conta.senha !== senhaAtual) return { ok: false, erro: 'Senha atual incorreta' };
-
-    setContas((atual) =>
-      atual.map((c) => (c.email === user.email ? { ...c, senha: novaSenha } : c))
-    );
-    return { ok: true };
+  async function redefinirSenha({ email, codigo, novaSenha }) {
+    try {
+      await api.confirmarRecuperacao(email.trim(), codigo, novaSenha);
+      return { ok: true };
+    } catch (erro) {
+      return { ok: false, erro: erro.message };
+    }
   }
 
   function logout() {
@@ -92,13 +76,12 @@ export function AuthProvider({ children }) {
       value={{
         user,
         token,
-        contas,
         cadastrar,
         login,
-        existeConta,
-        redefinirSenha,
         atualizarPerfil,
         alterarSenha,
+        solicitarCodigo,
+        redefinirSenha,
         logout,
       }}
     >
