@@ -24,7 +24,7 @@ export default function RenovacaoCnhScreen({ route, navigation }) {
   const [sucesso, setSucesso] = useState(false);
   const [mensagemSucesso, setMensagemSucesso] = useState('');
 
-  function handleConfirmar() {
+  async function handleConfirmar() {
     const novosErros = {};
     if (!validarCampoObrigatorio(unidade)) novosErros.unidade = 'Selecione uma unidade';
     if (!validarCampoObrigatorio(registro)) novosErros.registro = 'Informe o número de registro da CNH';
@@ -34,6 +34,7 @@ export default function RenovacaoCnhScreen({ route, navigation }) {
     if (Object.keys(novosErros).length > 0) return;
 
     const dados = { servico: servico.nome, detalhe: `Registro: ${registro}`, unidade, data };
+    const mensagemConfirmado = `Renovação de CNH (registro ${registro}) agendada para ${data}, em ${unidade}.`;
 
     if (unidadeIndisponivel(unidade, data)) {
       alerta(
@@ -43,16 +44,20 @@ export default function RenovacaoCnhScreen({ route, navigation }) {
           { text: 'Escolher outra data', style: 'cancel' },
           {
             text: 'Entrar na lista de espera',
-            onPress: () => {
+            onPress: async () => {
               setEnviando(true);
-              setTimeout(() => {
-                entrarListaEspera(dados);
-                setEnviando(false);
-                setMensagemSucesso(
-                  `Você entrou na lista de espera para Renovação de CNH (registro ${registro}) em ${unidade}. Avisaremos se abrir uma vaga.`
-                );
-                setSucesso(true);
-              }, 700);
+              const resultado = await entrarListaEspera(dados);
+              setEnviando(false);
+              if (!resultado.ok) {
+                alerta('Não foi possível entrar na lista de espera', resultado.erro);
+                return;
+              }
+              setMensagemSucesso(
+                resultado.agendamento.status === 'confirmado'
+                  ? mensagemConfirmado
+                  : `Você entrou na lista de espera para Renovação de CNH (registro ${registro}) em ${unidade}. Avisaremos se abrir uma vaga.`
+              );
+              setSucesso(true);
             },
           },
         ]
@@ -61,12 +66,14 @@ export default function RenovacaoCnhScreen({ route, navigation }) {
     }
 
     setEnviando(true);
-    setTimeout(() => {
-      adicionarAgendamento(dados);
-      setEnviando(false);
-      setMensagemSucesso(`Renovação de CNH (registro ${registro}) agendada para ${data}, em ${unidade}.`);
-      setSucesso(true);
-    }, 700);
+    const resultado = await adicionarAgendamento(dados);
+    setEnviando(false);
+    if (!resultado.ok) {
+      alerta('Não foi possível agendar', resultado.erro);
+      return;
+    }
+    setMensagemSucesso(mensagemConfirmado);
+    setSucesso(true);
   }
 
   function handleFecharSucesso() {

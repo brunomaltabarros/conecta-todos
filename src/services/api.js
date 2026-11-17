@@ -76,3 +76,35 @@ export function confirmarRecuperacao(email, codigo, novaSenha) {
     corpo: { email, codigo, novaSenha },
   });
 }
+
+export function listarAgendamentos(token) {
+  return requisitar('/agendamentos', { token });
+}
+
+export function buscarOcupacao(token) {
+  return requisitar('/ocupacao', { token });
+}
+
+export function criarAgendamento(token, dados, listaEspera) {
+  return requisitar('/agendamentos', {
+    metodo: 'POST',
+    corpo: { ...dados, listaEspera },
+    token,
+  });
+}
+
+export function cancelarAgendamento(token, id) {
+  return requisitar(`/agendamentos/${id}/cancelar`, { metodo: 'PUT', token });
+}
+
+export function concluirAgendamento(token, id, feedback) {
+  return requisitar(`/agendamentos/${id}/concluir`, {
+    metodo: 'PUT',
+    corpo: { feedback },
+    token,
+  });
+}
+
+export function limparAgendamentos(token) {
+  return requisitar('/agendamentos', { metodo: 'DELETE', token });
+}

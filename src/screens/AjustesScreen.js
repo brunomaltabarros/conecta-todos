@@ -89,7 +89,7 @@ export default function AjustesScreen() {
         <Text style={styles.secaoTitulo}>Meus dados</Text>
         <Text style={styles.secaoDescricao}>
           {total === 0
-            ? 'Nenhum agendamento registrado nesta sessão.'
+            ? 'Nenhum agendamento registrado.'
             : `${total} ${total === 1 ? 'registro' : 'registros'} na sua lista de agendamentos.`}
         </Text>
         <TouchableOpacity
@@ -115,9 +115,9 @@ export default function AjustesScreen() {
         <View style={styles.aviso}>
           <Ionicons name="information-circle-outline" size={18} color={colors.textLight} />
           <Text style={styles.avisoTexto}>
-            Os agendamentos ficam apenas na memória do aparelho enquanto o aplicativo está aberto.
-            Esta versão não usa banco de dados nem servidor, então os dados são perdidos ao fechar
-            o aplicativo.
+            Sua conta e seus agendamentos ficam salvos no servidor do ConectaTodos. Limpar a lista
+            apaga os registros de forma definitiva, e uma vaga que você liberar passa para a próxima
+            pessoa da lista de espera.
           </Text>
         </View>
       </View>

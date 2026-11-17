@@ -26,7 +26,7 @@ export default function EmissaoCnhScreen({ route, navigation }) {
   const [sucesso, setSucesso] = useState(false);
   const [mensagemSucesso, setMensagemSucesso] = useState('');
 
-  function handleConfirmar() {
+  async function handleConfirmar() {
     const novosErros = {};
     if (!validarCampoObrigatorio(unidade)) novosErros.unidade = 'Selecione uma unidade';
     if (!validarCampoObrigatorio(categoria)) novosErros.categoria = 'Selecione a categoria da CNH';
@@ -36,6 +36,7 @@ export default function EmissaoCnhScreen({ route, navigation }) {
     if (Object.keys(novosErros).length > 0) return;
 
     const dados = { servico: servico.nome, detalhe: `Categoria: ${categoria}`, unidade, data };
+    const mensagemConfirmado = `Emissão de CNH (${categoria}) agendada para ${data}, em ${unidade}.`;
 
     if (unidadeIndisponivel(unidade, data)) {
       alerta(
@@ -45,16 +46,20 @@ export default function EmissaoCnhScreen({ route, navigation }) {
           { text: 'Escolher outra data', style: 'cancel' },
           {
             text: 'Entrar na lista de espera',
-            onPress: () => {
+            onPress: async () => {
               setEnviando(true);
-              setTimeout(() => {
-                entrarListaEspera(dados);
-                setEnviando(false);
-                setMensagemSucesso(
-                  `Você entrou na lista de espera para Emissão de CNH (${categoria}) em ${unidade}. Avisaremos se abrir uma vaga.`
-                );
-                setSucesso(true);
-              }, 700);
+              const resultado = await entrarListaEspera(dados);
+              setEnviando(false);
+              if (!resultado.ok) {
+                alerta('Não foi possível entrar na lista de espera', resultado.erro);
+                return;
+              }
+              setMensagemSucesso(
+                resultado.agendamento.status === 'confirmado'
+                  ? mensagemConfirmado
+                  : `Você entrou na lista de espera para Emissão de CNH (${categoria}) em ${unidade}. Avisaremos se abrir uma vaga.`
+              );
+              setSucesso(true);
             },
           },
         ]
@@ -63,12 +68,14 @@ export default function EmissaoCnhScreen({ route, navigation }) {
     }
 
     setEnviando(true);
-    setTimeout(() => {
-      adicionarAgendamento(dados);
-      setEnviando(false);
-      setMensagemSucesso(`Emissão de CNH (${categoria}) agendada para ${data}, em ${unidade}.`);
-      setSucesso(true);
-    }, 700);
+    const resultado = await adicionarAgendamento(dados);
+    setEnviando(false);
+    if (!resultado.ok) {
+      alerta('Não foi possível agendar', resultado.erro);
+      return;
+    }
+    setMensagemSucesso(mensagemConfirmado);
+    setSucesso(true);
   }
 
   function handleFecharSucesso() {

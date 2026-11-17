@@ -1,20 +1,70 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import { useAuth } from './AuthContext';
+import * as api from '../services/api';
+import { alerta } from '../utils/alerta';
 
 const AgendamentosContext = createContext();
 
 export function AgendamentosProvider({ children }) {
+  const { token } = useAuth();
   const [agendamentos, setAgendamentos] = useState([]);
+  const [ocupacao, setOcupacao] = useState([]);
+  const [carregando, setCarregando] = useState(false);
+  const [erroCarregamento, setErroCarregamento] = useState(null);
+
+  const recarregar = useCallback(async () => {
+    if (!token) return;
+    try {
+      const [lista, mapa] = await Promise.all([
+        api.listarAgendamentos(token),
+        api.buscarOcupacao(token),
+      ]);
+      setAgendamentos(lista.agendamentos);
+      setOcupacao(mapa.ocupacao);
+      setErroCarregamento(null);
+    } catch (erro) {
+      setErroCarregamento(erro.message);
+    }
+  }, [token]);
+
+  useEffect(() => {
+    if (!token) {
+      setAgendamentos([]);
+      setOcupacao([]);
+      setErroCarregamento(null);
+      return;
+    }
+    setCarregando(true);
+    recarregar().finally(() => setCarregando(false));
+  }, [token, recarregar]);
+
+  async function executar(chamada) {
+    try {
+      const dados = await chamada();
+      await recarregar();
+      return { ok: true, ...dados };
+    } catch (erro) {
+      await recarregar();
+      return { ok: false, erro: erro.message };
+    }
+  }
+
+  async function executarAvisando(titulo, chamada) {
+    const resultado = await executar(chamada);
+    if (!resultado.ok) alerta(titulo, resultado.erro);
+    return resultado;
+  }
 
   function unidadeIndisponivel(unidade, data) {
-    return agendamentos.some(
-      (a) => a.unidade === unidade && a.data === data && a.status === 'confirmado'
+    return ocupacao.some(
+      (o) => o.unidade === unidade && o.data === data && o.confirmados > 0
     );
   }
 
   function tempoEsperaEstimado(unidade) {
-    const confirmadosNaUnidade = agendamentos.filter(
-      (a) => a.status === 'confirmado' && a.unidade === unidade
-    ).length;
+    const confirmadosNaUnidade = ocupacao
+      .filter((o) => o.unidade === unidade)
+      .reduce((soma, o) => soma + o.confirmados, 0);
 
     if (confirmadosNaUnidade === 0) return 'até 10 min';
     if (confirmadosNaUnidade <= 2) return '20 a 30 min';
@@ -24,67 +74,42 @@ export function AgendamentosProvider({ children }) {
   function posicaoNaFila(id) {
     const item = agendamentos.find((a) => a.id === id);
     if (!item || item.status !== 'espera') return null;
-
-    const fila = agendamentos.filter(
-      (a) => a.status === 'espera' && a.unidade === item.unidade && a.data === item.data
-    );
-    return fila.findIndex((a) => a.id === id) + 1;
+    return item.posicaoFila;
   }
 
   function adicionarAgendamento(novo) {
-    setAgendamentos((atual) => [
-      ...atual,
-      { id: String(Date.now()), status: 'confirmado', ...novo },
-    ]);
+    return executar(() => api.criarAgendamento(token, novo, false));
   }
 
   function entrarListaEspera(novo) {
-    setAgendamentos((atual) => [
-      ...atual,
-      { id: String(Date.now()), status: 'espera', ...novo },
-    ]);
+    return executar(() => api.criarAgendamento(token, novo, true));
   }
 
   function cancelarAgendamento(id) {
-    setAgendamentos((atual) => {
-      const alvo = atual.find((a) => a.id === id);
-      if (!alvo) return atual;
-
-      let atualizado = atual.map((a) =>
-        a.id === id ? { ...a, status: 'cancelado' } : a
-      );
-
-      if (alvo.status === 'confirmado') {
-        const proximoDaFila = atualizado.find(
-          (a) => a.status === 'espera' && a.unidade === alvo.unidade && a.data === alvo.data
-        );
-        if (proximoDaFila) {
-          atualizado = atualizado.map((a) =>
-            a.id === proximoDaFila.id ? { ...a, status: 'confirmado' } : a
-          );
-        }
-      }
-
-      return atualizado;
-    });
+    return executarAvisando('Não foi possível cancelar', () =>
+      api.cancelarAgendamento(token, id)
+    );
   }
 
   function finalizarAgendamento(id, feedback) {
-    setAgendamentos((atual) =>
-      atual.map((a) =>
-        a.id === id ? { ...a, status: 'concluido', feedback } : a
-      )
+    return executarAvisando('Não foi possível registrar a avaliação', () =>
+      api.concluirAgendamento(token, id, feedback)
     );
   }
 
   function limparAgendamentos() {
-    setAgendamentos([]);
+    return executarAvisando('Não foi possível limpar os agendamentos', () =>
+      api.limparAgendamentos(token)
+    );
   }
 
   return (
     <AgendamentosContext.Provider
       value={{
         agendamentos,
+        carregando,
+        erroCarregamento,
+        recarregar,
         adicionarAgendamento,
         entrarListaEspera,
         cancelarAgendamento,

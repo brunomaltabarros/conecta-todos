@@ -24,7 +24,7 @@ export default function TransferenciaVeiculoScreen({ route, navigation }) {
   const [sucesso, setSucesso] = useState(false);
   const [mensagemSucesso, setMensagemSucesso] = useState('');
 
-  function handleConfirmar() {
+  async function handleConfirmar() {
     const novosErros = {};
     if (!unidade) novosErros.unidade = 'Selecione uma unidade';
     if (!validarPlaca(placa)) novosErros.placa = 'Placa inválida (ex: ABC1D23)';
@@ -34,6 +34,7 @@ export default function TransferenciaVeiculoScreen({ route, navigation }) {
     if (Object.keys(novosErros).length > 0) return;
 
     const dados = { servico: servico.nome, detalhe: `Placa: ${placa.toUpperCase()}`, unidade, data };
+    const mensagemConfirmado = `Transferência do veículo ${placa.toUpperCase()} agendada para ${data}, em ${unidade}.`;
 
     if (unidadeIndisponivel(unidade, data)) {
       alerta(
@@ -43,16 +44,20 @@ export default function TransferenciaVeiculoScreen({ route, navigation }) {
           { text: 'Escolher outra data', style: 'cancel' },
           {
             text: 'Entrar na lista de espera',
-            onPress: () => {
+            onPress: async () => {
               setEnviando(true);
-              setTimeout(() => {
-                entrarListaEspera(dados);
-                setEnviando(false);
-                setMensagemSucesso(
-                  `Você entrou na lista de espera para transferência do veículo ${placa.toUpperCase()} em ${unidade}. Avisaremos se abrir uma vaga.`
-                );
-                setSucesso(true);
-              }, 700);
+              const resultado = await entrarListaEspera(dados);
+              setEnviando(false);
+              if (!resultado.ok) {
+                alerta('Não foi possível entrar na lista de espera', resultado.erro);
+                return;
+              }
+              setMensagemSucesso(
+                resultado.agendamento.status === 'confirmado'
+                  ? mensagemConfirmado
+                  : `Você entrou na lista de espera para transferência do veículo ${placa.toUpperCase()} em ${unidade}. Avisaremos se abrir uma vaga.`
+              );
+              setSucesso(true);
             },
           },
         ]
@@ -61,12 +66,14 @@ export default function TransferenciaVeiculoScreen({ route, navigation }) {
     }
 
     setEnviando(true);
-    setTimeout(() => {
-      adicionarAgendamento(dados);
-      setEnviando(false);
-      setMensagemSucesso(`Transferência do veículo ${placa.toUpperCase()} agendada para ${data}, em ${unidade}.`);
-      setSucesso(true);
-    }, 700);
+    const resultado = await adicionarAgendamento(dados);
+    setEnviando(false);
+    if (!resultado.ok) {
+      alerta('Não foi possível agendar', resultado.erro);
+      return;
+    }
+    setMensagemSucesso(mensagemConfirmado);
+    setSucesso(true);
   }
 
   function handleFecharSucesso() {
