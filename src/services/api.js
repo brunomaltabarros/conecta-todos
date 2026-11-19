@@ -108,3 +108,8 @@ export function concluirAgendamento(token, id, feedback) {
 export function limparAgendamentos(token) {
   return requisitar('/agendamentos', { metodo: 'DELETE', token });
 }
+
+export function buscarHorarios(token, unidade, data) {
+  const consulta = `unidade=${encodeURIComponent(unidade)}&data=${encodeURIComponent(data)}`;
+  return requisitar(`/horarios?${consulta}`, { token });
+}
