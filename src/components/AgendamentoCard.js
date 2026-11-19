@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, Pressable, StyleSheet } from '
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, fontSizes, radius, shadow, toque } from '../theme/theme';
 import { podeCancelar } from '../utils/validation';
+import { formatarHorario } from '../utils/horarios';
 
 const statusInfo = {
   confirmado: { texto: 'Confirmado', cor: colors.success, fundo: '#E7F3EE' },
@@ -44,7 +45,10 @@ export default function AgendamentoCard({ item, tempoEsperaEstimado, posicaoNaFi
       </View>
       <View style={styles.linha}>
         <Ionicons name="calendar-outline" size={14} color={colors.primary} />
-        <Text style={styles.cardData}>{item.data}</Text>
+        <Text style={styles.cardData}>
+          {item.data}
+          {item.horario ? ` às ${formatarHorario(item.horario)}` : ''}
+        </Text>
       </View>
 
       {confirmado && (
