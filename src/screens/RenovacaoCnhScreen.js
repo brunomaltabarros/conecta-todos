@@ -8,38 +8,51 @@ import CabecalhoServico from '../components/CabecalhoServico';
 import CampoTexto from '../components/CampoTexto';
 import SeletorUnidade from '../components/SeletorUnidade';
 import CampoData from '../components/CampoData';
+import SeletorHorario from '../components/SeletorHorario';
 import FormularioScroll from '../components/FormularioScroll';
 import FeedbackSucesso from '../components/FeedbackSucesso';
 import { useAgendamentos } from '../context/AgendamentosContext';
 import { alerta } from '../utils/alerta';
+import { formatarHorario } from '../utils/horarios';
 
 export default function RenovacaoCnhScreen({ route, navigation }) {
   const { servico } = route.params;
-  const { adicionarAgendamento, entrarListaEspera, unidadeIndisponivel } = useAgendamentos();
+  const { adicionarAgendamento, entrarListaEspera } = useAgendamentos();
   const [unidade, setUnidade] = useState('');
   const [registro, setRegistro] = useState('');
   const [data, setData] = useState('');
+  const [horario, setHorario] = useState('');
+  const [situacao, setSituacao] = useState({ lotado: false, motivo: null });
+  const [recargaHorarios, setRecargaHorarios] = useState(0);
   const [erros, setErros] = useState({});
   const [enviando, setEnviando] = useState(false);
   const [sucesso, setSucesso] = useState(false);
+  const [tituloSucesso, setTituloSucesso] = useState('');
   const [mensagemSucesso, setMensagemSucesso] = useState('');
+
+  function escolherHorario(valor) {
+    setHorario(valor);
+    setErros((atual) => ({ ...atual, horario: undefined }));
+  }
 
   async function handleConfirmar() {
     const novosErros = {};
     if (!validarCampoObrigatorio(unidade)) novosErros.unidade = 'Selecione uma unidade';
     if (!validarCampoObrigatorio(registro)) novosErros.registro = 'Informe o número de registro da CNH';
     if (!validarData(data)) novosErros.data = 'Selecione uma data';
+    else if (situacao.motivo) novosErros.horario = 'Não há horários neste dia. Escolha outra data.';
+    else if (!situacao.lotado && !horario) novosErros.horario = 'Escolha um horário';
 
     setErros(novosErros);
     if (Object.keys(novosErros).length > 0) return;
 
-    const dados = { servico: servico.nome, detalhe: `Registro: ${registro}`, unidade, data };
-    const mensagemConfirmado = `Renovação de CNH (registro ${registro}) agendada para ${data}, em ${unidade}.`;
+    const dados = { servico: servico.nome, detalhe: `Registro: ${registro}`, unidade, data, horario };
+    const descricao = `Renovação de CNH (registro ${registro})`;
 
-    if (unidadeIndisponivel(unidade, data)) {
+    if (situacao.lotado) {
       alerta(
-        'Sem horário disponível',
-        `Não há vaga em ${unidade} para ${data}. Deseja entrar na lista de espera? Avisamos se abrir uma vaga por cancelamento.`,
+        'Dia sem horários livres',
+        `Todos os horários de ${unidade} em ${data} estão ocupados. Deseja entrar na lista de espera? Se alguém cancelar, o horário passa para você.`,
         [
           { text: 'Escolher outra data', style: 'cancel' },
           {
@@ -50,12 +63,12 @@ export default function RenovacaoCnhScreen({ route, navigation }) {
               setEnviando(false);
               if (!resultado.ok) {
                 alerta('Não foi possível entrar na lista de espera', resultado.erro);
+                setRecargaHorarios((n) => n + 1);
                 return;
               }
+              setTituloSucesso('Você está na lista de espera');
               setMensagemSucesso(
-                resultado.agendamento.status === 'confirmado'
-                  ? mensagemConfirmado
-                  : `Você entrou na lista de espera para Renovação de CNH (registro ${registro}) em ${unidade}. Avisaremos se abrir uma vaga.`
+                `${descricao} em ${unidade}, no dia ${data}. Se um horário for liberado, ele passa para você.`
               );
               setSucesso(true);
             },
@@ -70,9 +83,13 @@ export default function RenovacaoCnhScreen({ route, navigation }) {
     setEnviando(false);
     if (!resultado.ok) {
       alerta('Não foi possível agendar', resultado.erro);
+      setRecargaHorarios((n) => n + 1);
       return;
     }
-    setMensagemSucesso(mensagemConfirmado);
+    setTituloSucesso('Agendamento confirmado');
+    setMensagemSucesso(
+      `${descricao} agendada para ${data} às ${formatarHorario(horario)}, em ${unidade}.`
+    );
     setSucesso(true);
   }
 
@@ -96,11 +113,21 @@ export default function RenovacaoCnhScreen({ route, navigation }) {
       />
       <SeletorUnidade unidade={unidade} setUnidade={setUnidade} erro={erros.unidade} />
       <CampoData data={data} setData={setData} erro={erros.data} />
+      <SeletorHorario
+        unidade={unidade}
+        data={data}
+        horario={horario}
+        setHorario={escolherHorario}
+        erro={erros.horario}
+        onSituacao={setSituacao}
+        recarga={recargaHorarios}
+      />
 
       <Botao titulo="Confirmar agendamento" onPress={handleConfirmar} carregando={enviando} />
 
       <FeedbackSucesso
         visivel={sucesso}
+        titulo={tituloSucesso}
         mensagem={mensagemSucesso}
         onFechar={handleFecharSucesso}
       />
