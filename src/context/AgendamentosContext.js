@@ -55,10 +55,13 @@ export function AgendamentosProvider({ children }) {
     return resultado;
   }
 
-  function unidadeIndisponivel(unidade, data) {
-    return ocupacao.some(
-      (o) => o.unidade === unidade && o.data === data && o.confirmados > 0
-    );
+  async function buscarHorarios(unidade, data) {
+    try {
+      const dados = await api.buscarHorarios(token, unidade, data);
+      return { ok: true, ...dados };
+    } catch (erro) {
+      return { ok: false, erro: erro.message };
+    }
   }
 
   function tempoEsperaEstimado(unidade) {
@@ -115,7 +118,7 @@ export function AgendamentosProvider({ children }) {
         cancelarAgendamento,
         finalizarAgendamento,
         limparAgendamentos,
-        unidadeIndisponivel,
+        buscarHorarios,
         tempoEsperaEstimado,
         posicaoNaFila,
       }}
