@@ -31,6 +31,7 @@ const opcoesHeader = {
   headerStyle: { backgroundColor: colors.primary },
   headerTintColor: '#fff',
   headerTitleStyle: { fontWeight: 'bold' },
+  headerTitleAllowFontScaling: false,
 };
 
 function iconeAba(nome) {

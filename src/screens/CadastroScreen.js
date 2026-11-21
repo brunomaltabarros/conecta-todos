@@ -170,7 +170,13 @@ export default function CadastroScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.primary },
   header: { paddingTop: 80, paddingBottom: spacing.lg, alignItems: 'center' },
-  subtitle: { fontSize: fontSizes.md, color: '#DCE7EE', marginTop: spacing.md },
+  subtitle: {
+    fontSize: fontSizes.md,
+    color: '#DCE7EE',
+    marginTop: spacing.md,
+    paddingHorizontal: spacing.lg,
+    textAlign: 'center',
+  },
   form: {
     flex: 1,
     backgroundColor: colors.background,

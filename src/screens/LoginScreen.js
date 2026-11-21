@@ -149,7 +149,13 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.primary },
   scroll: { flexGrow: 1, justifyContent: 'center' },
   header: { alignItems: 'center', paddingVertical: spacing.xl, paddingBottom: spacing.xl * 1.5 },
-  subtitle: { fontSize: fontSizes.md, color: '#DCE7EE', marginTop: spacing.md },
+  subtitle: {
+    fontSize: fontSizes.md,
+    color: '#DCE7EE',
+    marginTop: spacing.md,
+    paddingHorizontal: spacing.lg,
+    textAlign: 'center',
+  },
   form: {
     backgroundColor: colors.background,
     borderTopLeftRadius: 28,
