@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-import {
-  NavigationContainer,
-  useNavigationContainerRef,
-} from '@react-navigation/native';
+import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
+import { NavigationContainer, useNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
@@ -43,9 +41,7 @@ function iconeAba(nome) {
 
 function AbasPrincipais() {
   const { agendamentos } = useAgendamentos();
-  const ativos = agendamentos.filter(
-    (a) => a.status === 'confirmado' || a.status === 'espera'
-  ).length;
+  const ativos = agendamentos.filter((a) => a.status === 'confirmado' || a.status === 'espera').length;
 
   return (
     <Tab.Navigator
@@ -86,9 +82,7 @@ function AbasPrincipais() {
           tabBarBadge: ativos > 0 ? ativos : undefined,
           tabBarBadgeStyle: { backgroundColor: colors.secondary },
           tabBarAccessibilityLabel:
-            ativos > 0
-              ? `Meus agendamentos, ${ativos} em andamento`
-              : 'Meus agendamentos',
+            ativos > 0 ? `Meus agendamentos, ${ativos} em andamento` : 'Meus agendamentos',
         }}
       />
       <Tab.Screen
@@ -105,8 +99,20 @@ function AbasPrincipais() {
   );
 }
 
+function TelaCarregando() {
+  return (
+    <View style={styles.carregando} accessibilityLiveRegion="polite">
+      <Logo tamanho={52} variante="negativo" comTexto />
+      <ActivityIndicator size="large" color="#FFFFFF" style={styles.indicador} />
+      <Text style={styles.carregandoTexto} role="status">
+        Abrindo sua conta...
+      </Text>
+    </View>
+  );
+}
+
 export default function AppNavigator() {
-  const { user } = useAuth();
+  const { user, restaurando } = useAuth();
   const navegacaoRef = useNavigationContainerRef();
   const [rotaAtual, setRotaAtual] = useState(undefined);
 
@@ -114,26 +120,16 @@ export default function AppNavigator() {
     setRotaAtual(navegacaoRef.getCurrentRoute()?.name);
   }
 
+  if (restaurando) return <TelaCarregando />;
+
   return (
-    <NavigationContainer
-      ref={navegacaoRef}
-      onReady={registrarRota}
-      onStateChange={registrarRota}
-    >
+    <NavigationContainer ref={navegacaoRef} onReady={registrarRota} onStateChange={registrarRota}>
       <AnuncioDeRota rota={rotaAtual} />
       <Stack.Navigator screenOptions={opcoesHeader}>
         {!user ? (
           <>
-            <Stack.Screen
-              name="Login"
-              component={LoginScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="Cadastro"
-              component={CadastroScreen}
-              options={{ headerShown: false }}
-            />
+            <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="Cadastro" component={CadastroScreen} options={{ headerShown: false }} />
             <Stack.Screen
               name="EsqueciSenha"
               component={EsqueciSenhaScreen}
@@ -142,15 +138,23 @@ export default function AppNavigator() {
           </>
         ) : (
           <>
-            <Stack.Screen
-              name="Abas"
-              component={AbasPrincipais}
-              options={{ headerShown: false }}
-            />
+            <Stack.Screen name="Abas" component={AbasPrincipais} options={{ headerShown: false }} />
             <Stack.Screen name="Ajustes" component={AjustesScreen} options={{ title: 'Ajustes' }} />
-            <Stack.Screen name="EmissaoCnh" component={EmissaoCnhScreen} options={{ title: 'Emissão de CNH' }} />
-            <Stack.Screen name="RenovacaoCnh" component={RenovacaoCnhScreen} options={{ title: 'Renovação de CNH' }} />
-            <Stack.Screen name="TransferenciaVeiculo" component={TransferenciaVeiculoScreen} options={{ title: 'Transferência de Veículo' }} />
+            <Stack.Screen
+              name="EmissaoCnh"
+              component={EmissaoCnhScreen}
+              options={{ title: 'Emissão de CNH' }}
+            />
+            <Stack.Screen
+              name="RenovacaoCnh"
+              component={RenovacaoCnhScreen}
+              options={{ title: 'Renovação de CNH' }}
+            />
+            <Stack.Screen
+              name="TransferenciaVeiculo"
+              component={TransferenciaVeiculoScreen}
+              options={{ title: 'Transferência de Veículo' }}
+            />
             <Stack.Screen name="SegundaVia" component={SegundaViaScreen} options={{ title: 'Segunda Via' }} />
           </>
         )}
@@ -158,3 +162,15 @@ export default function AppNavigator() {
     </NavigationContainer>
   );
 }
+
+const styles = StyleSheet.create({
+  carregando: {
+    flex: 1,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
+  },
+  indicador: { marginTop: 32 },
+  carregandoTexto: { color: '#DCE7EE', fontSize: fontSizes.md, marginTop: 16 },
+});

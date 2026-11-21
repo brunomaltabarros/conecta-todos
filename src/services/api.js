@@ -34,14 +34,19 @@ async function requisitar(caminho, { metodo = 'GET', corpo, token } = {}) {
       body: corpo ? JSON.stringify(corpo) : undefined,
     });
   } catch {
-    throw new Error(
-      `Não foi possível conectar ao servidor em ${API_URL}. Verifique se ele está rodando.`
+    console.warn(`Servidor não respondeu em ${API_URL}`);
+    const falha = new Error(
+      'Não foi possível conectar ao ConectaTodos agora. Verifique sua internet e tente de novo em instantes.',
     );
+    falha.semConexao = true;
+    throw falha;
   }
 
   const dados = await resposta.json().catch(() => ({}));
   if (!resposta.ok) {
-    throw new Error(dados.erro || 'Erro inesperado. Tente novamente.');
+    const falha = new Error(dados.erro || 'Algo deu errado do nosso lado. Tente de novo em instantes.');
+    falha.status = resposta.status;
+    throw falha;
   }
   return dados;
 }

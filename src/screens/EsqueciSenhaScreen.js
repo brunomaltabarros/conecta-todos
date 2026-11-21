@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -30,9 +30,26 @@ export default function EsqueciSenhaScreen({ navigation }) {
   const [enviando, setEnviando] = useState(false);
   const [sucesso, setSucesso] = useState(false);
 
+  const emailRef = useRef(null);
+  const codigoRef = useRef(null);
+  const novaSenhaRef = useRef(null);
+  const confirmacaoRef = useRef(null);
+
+  function focarPrimeiroErro(novosErros) {
+    const ordem = [
+      ['email', emailRef],
+      ['codigo', codigoRef],
+      ['novaSenha', novaSenhaRef],
+      ['confirmacao', confirmacaoRef],
+    ];
+    const primeiro = ordem.find(([campo]) => novosErros[campo]);
+    if (primeiro) primeiro[1].current?.focus();
+  }
+
   async function handleContinuar() {
     if (!validarEmail(email)) {
-      setErros({ email: 'Informe um e-mail válido' });
+      setErros({ email: 'Informe um e-mail válido, como nome@exemplo.com' });
+      emailRef.current?.focus();
       return;
     }
 
@@ -43,6 +60,7 @@ export default function EsqueciSenhaScreen({ navigation }) {
 
     if (!resultado.ok) {
       setErros({ email: resultado.erro });
+      emailRef.current?.focus();
       return;
     }
     setEtapa('senha');
@@ -65,11 +83,12 @@ export default function EsqueciSenhaScreen({ navigation }) {
       novosErros.novaSenha = 'A senha deve ter pelo menos 6 caracteres';
     }
     if (!validarConfirmacaoSenha(novaSenha, confirmacao)) {
-      novosErros.confirmacao = 'As senhas não conferem';
+      novosErros.confirmacao = 'As senhas não conferem. Digite a mesma senha nos dois campos';
     }
 
     if (Object.keys(novosErros).length > 0) {
       setErros(novosErros);
+      focarPrimeiroErro(novosErros);
       return;
     }
 
@@ -80,6 +99,7 @@ export default function EsqueciSenhaScreen({ navigation }) {
 
     if (!resultado.ok) {
       setErros({ codigo: resultado.erro });
+      codigoRef.current?.focus();
       return;
     }
     setSucesso(true);
@@ -91,23 +111,15 @@ export default function EsqueciSenhaScreen({ navigation }) {
   }
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <ScrollView
-        contentContainerStyle={styles.scroll}
-        keyboardShouldPersistTaps="handled"
-      >
+    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
           <Logo tamanho={44} variante="negativo" comTexto />
           <Text style={styles.subtitle}>Recuperar o acesso à sua conta</Text>
         </View>
 
         <View style={styles.form}>
-          <Text style={styles.passo}>
-            {etapa === 'email' ? 'Passo 1 de 2' : 'Passo 2 de 2'}
-          </Text>
+          <Text style={styles.passo}>{etapa === 'email' ? 'Passo 1 de 2' : 'Passo 2 de 2'}</Text>
           <Text style={styles.titulo}>
             {etapa === 'email' ? 'Qual é o seu e-mail?' : 'Informe o código e a nova senha'}
           </Text>
@@ -120,6 +132,7 @@ export default function EsqueciSenhaScreen({ navigation }) {
           {etapa === 'email' ? (
             <>
               <CampoTexto
+                ref={emailRef}
                 label="E-mail da conta"
                 icone="mail-outline"
                 placeholder="seuemail@exemplo.com"
@@ -128,6 +141,9 @@ export default function EsqueciSenhaScreen({ navigation }) {
                 erro={erros.email}
                 keyboardType="email-address"
                 autoCapitalize="none"
+                autoComplete="email"
+                returnKeyType="go"
+                onSubmitEditing={handleContinuar}
               />
               <View style={styles.acao}>
                 <Botao titulo="Continuar" onPress={handleContinuar} carregando={enviando} />
@@ -151,6 +167,7 @@ export default function EsqueciSenhaScreen({ navigation }) {
               </View>
 
               <CampoTexto
+                ref={codigoRef}
                 label="Código de confirmação"
                 icone="key-outline"
                 placeholder="000000"
@@ -160,8 +177,12 @@ export default function EsqueciSenhaScreen({ navigation }) {
                 keyboardType="number-pad"
                 maxLength={6}
                 autoCapitalize="none"
+                autoComplete="one-time-code"
+                returnKeyType="next"
+                onSubmitEditing={() => novaSenhaRef.current?.focus()}
               />
               <CampoTexto
+                ref={novaSenhaRef}
                 label="Nova senha"
                 icone="lock-closed-outline"
                 placeholder="Pelo menos 6 caracteres"
@@ -169,9 +190,13 @@ export default function EsqueciSenhaScreen({ navigation }) {
                 onChangeText={setNovaSenha}
                 erro={erros.novaSenha}
                 autoCapitalize="none"
+                autoComplete="new-password"
                 secureTextEntry
+                returnKeyType="next"
+                onSubmitEditing={() => confirmacaoRef.current?.focus()}
               />
               <CampoTexto
+                ref={confirmacaoRef}
                 label="Confirmar nova senha"
                 icone="lock-closed-outline"
                 placeholder="Repita a nova senha"
@@ -179,14 +204,13 @@ export default function EsqueciSenhaScreen({ navigation }) {
                 onChangeText={setConfirmacao}
                 erro={erros.confirmacao}
                 autoCapitalize="none"
+                autoComplete="new-password"
                 secureTextEntry
+                returnKeyType="go"
+                onSubmitEditing={handleSalvar}
               />
               <View style={styles.acao}>
-                <Botao
-                  titulo="Salvar nova senha"
-                  onPress={handleSalvar}
-                  carregando={enviando}
-                />
+                <Botao titulo="Salvar nova senha" onPress={handleSalvar} carregando={enviando} />
               </View>
             </>
           )}
@@ -194,8 +218,8 @@ export default function EsqueciSenhaScreen({ navigation }) {
           <View style={styles.aviso}>
             <Ionicons name="information-circle-outline" size={16} color={colors.textLight} />
             <Text style={styles.avisoTexto}>
-              Nesta versão o código aparece no console do servidor, no lugar de ser enviado por
-              e-mail. A troca em si já acontece no banco de dados, com a senha guardada em hash.
+              Nesta versão o código aparece no console do servidor, no lugar de ser enviado por e-mail. A
+              troca em si já acontece no banco de dados, com a senha guardada em hash.
             </Text>
           </View>
 

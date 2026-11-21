@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { StyleSheet } from 'react-native';
 
 import { validarPlaca, validarData } from '../utils/validation';
@@ -29,6 +29,7 @@ export default function TransferenciaVeiculoScreen({ route, navigation }) {
   const [sucesso, setSucesso] = useState(false);
   const [tituloSucesso, setTituloSucesso] = useState('');
   const [mensagemSucesso, setMensagemSucesso] = useState('');
+  const placaRef = useRef(null);
 
   function escolherHorario(valor) {
     setHorario(valor);
@@ -44,7 +45,10 @@ export default function TransferenciaVeiculoScreen({ route, navigation }) {
     else if (!situacao.lotado && !horario) novosErros.horario = 'Escolha um horário';
 
     setErros(novosErros);
-    if (Object.keys(novosErros).length > 0) return;
+    if (Object.keys(novosErros).length > 0) {
+      if (novosErros.placa) placaRef.current?.focus();
+      return;
+    }
 
     const dados = { servico: servico.nome, detalhe: `Placa: ${placa.toUpperCase()}`, unidade, data, horario };
     const descricao = `Transferência do veículo ${placa.toUpperCase()}`;
@@ -68,12 +72,12 @@ export default function TransferenciaVeiculoScreen({ route, navigation }) {
               }
               setTituloSucesso('Você está na lista de espera');
               setMensagemSucesso(
-                `${descricao} em ${unidade}, no dia ${data}. Se um horário for liberado, ele passa para você.`
+                `${descricao} em ${unidade}, no dia ${data}. Se um horário for liberado, ele passa para você.`,
               );
               setSucesso(true);
             },
           },
-        ]
+        ],
       );
       return;
     }
@@ -87,9 +91,7 @@ export default function TransferenciaVeiculoScreen({ route, navigation }) {
       return;
     }
     setTituloSucesso('Agendamento confirmado');
-    setMensagemSucesso(
-      `${descricao} agendada para ${data} às ${formatarHorario(horario)}, em ${unidade}.`
-    );
+    setMensagemSucesso(`${descricao} agendada para ${data} às ${formatarHorario(horario)}, em ${unidade}.`);
     setSucesso(true);
   }
 
@@ -103,6 +105,7 @@ export default function TransferenciaVeiculoScreen({ route, navigation }) {
       <CabecalhoServico servico={servico} />
 
       <CampoTexto
+        ref={placaRef}
         label="Placa do veículo"
         icone="car-outline"
         placeholder="Ex: ABC1D23"

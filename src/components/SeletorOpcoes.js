@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, fontSizes, radius } from '../theme/theme';
+import MensagemErro from './MensagemErro';
 
 export default function SeletorOpcoes({ label, opcoes, valor, setValor, erro, subtitulos }) {
   return (
@@ -29,13 +30,19 @@ export default function SeletorOpcoes({ label, opcoes, valor, setValor, erro, su
           </TouchableOpacity>
         );
       })}
-      {erro && <Text style={styles.erroTexto}>{erro}</Text>}
+      <MensagemErro>{erro}</MensagemErro>
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  label: { fontSize: fontSizes.md, fontWeight: '600', color: colors.text, marginTop: spacing.md, marginBottom: spacing.xs },
+  label: {
+    fontSize: fontSizes.md,
+    fontWeight: '600',
+    color: colors.text,
+    marginTop: spacing.md,
+    marginBottom: spacing.xs,
+  },
   opcao: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -52,5 +59,4 @@ const styles = StyleSheet.create({
   opcaoTexto: { color: colors.text },
   opcaoTextoSelecionado: { color: colors.primary, fontWeight: '600' },
   opcaoSubtitulo: { color: colors.textLight, fontSize: fontSizes.sm, marginTop: 2 },
-  erroTexto: { color: colors.danger, fontSize: fontSizes.sm, marginTop: spacing.xs },
 });

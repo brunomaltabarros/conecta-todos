@@ -1,17 +1,63 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 import * as api from '../services/api';
+import { salvarSessao, lerSessao, apagarSessao } from '../services/sessao';
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
+  const [restaurando, setRestaurando] = useState(true);
+
+  useEffect(() => {
+    let ativo = true;
+
+    async function restaurar() {
+      const sessao = await lerSessao();
+      if (!sessao) {
+        if (ativo) setRestaurando(false);
+        return;
+      }
+
+      try {
+        const dados = await api.buscarPerfil(sessao.token);
+        const usuario = { nome: dados.usuario.nome, email: dados.usuario.email };
+        await salvarSessao(sessao.token, usuario);
+        if (ativo) {
+          setToken(sessao.token);
+          setUser(usuario);
+        }
+      } catch (erro) {
+        if (erro.semConexao) {
+          if (ativo) {
+            setToken(sessao.token);
+            setUser(sessao.usuario);
+          }
+        } else {
+          await apagarSessao();
+        }
+      } finally {
+        if (ativo) setRestaurando(false);
+      }
+    }
+
+    restaurar();
+    return () => {
+      ativo = false;
+    };
+  }, []);
+
+  async function iniciarSessao(dados) {
+    const usuario = { nome: dados.usuario.nome, email: dados.usuario.email };
+    await salvarSessao(dados.token, usuario);
+    setToken(dados.token);
+    setUser(usuario);
+  }
 
   async function cadastrar({ nome, email, senha }) {
     try {
       const dados = await api.cadastrar(nome.trim(), email.trim(), senha);
-      setToken(dados.token);
-      setUser({ nome: dados.usuario.nome, email: dados.usuario.email });
+      await iniciarSessao(dados);
       return { ok: true };
     } catch (erro) {
       return { ok: false, erro: erro.message };
@@ -21,8 +67,7 @@ export function AuthProvider({ children }) {
   async function login(email, senha) {
     try {
       const dados = await api.entrar(email.trim(), senha);
-      setToken(dados.token);
-      setUser({ nome: dados.usuario.nome, email: dados.usuario.email });
+      await iniciarSessao(dados);
       return { ok: true };
     } catch (erro) {
       return { ok: false, erro: erro.message };
@@ -32,7 +77,9 @@ export function AuthProvider({ children }) {
   async function atualizarPerfil({ nome, email }) {
     try {
       const dados = await api.salvarPerfil(token, nome.trim(), email.trim());
-      setUser({ nome: dados.usuario.nome, email: dados.usuario.email });
+      const usuario = { nome: dados.usuario.nome, email: dados.usuario.email };
+      await salvarSessao(token, usuario);
+      setUser(usuario);
       return { ok: true };
     } catch (erro) {
       return { ok: false, erro: erro.message };
@@ -69,6 +116,7 @@ export function AuthProvider({ children }) {
   function logout() {
     setUser(null);
     setToken(null);
+    apagarSessao();
   }
 
   return (
@@ -76,6 +124,7 @@ export function AuthProvider({ children }) {
       value={{
         user,
         token,
+        restaurando,
         cadastrar,
         login,
         atualizarPerfil,

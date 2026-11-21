@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -30,15 +30,30 @@ export default function PerfilScreen({ navigation }) {
   const [errosSenha, setErrosSenha] = useState({});
   const [salvandoSenha, setSalvandoSenha] = useState(false);
 
+  const nomeRef = useRef(null);
+  const emailRef = useRef(null);
+  const senhaAtualRef = useRef(null);
+  const novaSenhaRef = useRef(null);
+  const confirmarNovaSenhaRef = useRef(null);
+
   const inicial = user?.nome?.charAt(0)?.toUpperCase() ?? '?';
+
+  function focarPrimeiroErro(novosErros, ordem) {
+    const primeiro = ordem.find(([campo]) => novosErros[campo]);
+    if (primeiro) primeiro[1].current?.focus();
+  }
 
   async function handleSalvarPerfil() {
     const novosErros = {};
     if (!validarCampoObrigatorio(nome)) novosErros.nome = 'Informe seu nome completo';
-    if (!validarEmail(email)) novosErros.email = 'Informe um e-mail válido';
+    if (!validarEmail(email)) novosErros.email = 'Informe um e-mail válido, como nome@exemplo.com';
 
     if (Object.keys(novosErros).length > 0) {
       setErrosPerfil(novosErros);
+      focarPrimeiroErro(novosErros, [
+        ['nome', nomeRef],
+        ['email', emailRef],
+      ]);
       return;
     }
 
@@ -49,6 +64,7 @@ export default function PerfilScreen({ navigation }) {
 
     if (!resultado.ok) {
       setErrosPerfil({ email: resultado.erro });
+      emailRef.current?.focus();
       return;
     }
 
@@ -60,11 +76,16 @@ export default function PerfilScreen({ navigation }) {
     if (!validarCampoObrigatorio(senhaAtual)) novosErros.senhaAtual = 'Informe sua senha atual';
     if (!validarSenha(novaSenha)) novosErros.novaSenha = 'A nova senha deve ter pelo menos 6 caracteres';
     if (!validarConfirmacaoSenha(novaSenha, confirmarNovaSenha)) {
-      novosErros.confirmarNovaSenha = 'As senhas não coincidem';
+      novosErros.confirmarNovaSenha = 'As senhas não coincidem. Digite a mesma senha nos dois campos';
     }
 
     if (Object.keys(novosErros).length > 0) {
       setErrosSenha(novosErros);
+      focarPrimeiroErro(novosErros, [
+        ['senhaAtual', senhaAtualRef],
+        ['novaSenha', novaSenhaRef],
+        ['confirmarNovaSenha', confirmarNovaSenhaRef],
+      ]);
       return;
     }
 
@@ -75,6 +96,7 @@ export default function PerfilScreen({ navigation }) {
 
     if (!resultado.ok) {
       setErrosSenha({ senhaAtual: resultado.erro });
+      senhaAtualRef.current?.focus();
       return;
     }
 
@@ -111,14 +133,18 @@ export default function PerfilScreen({ navigation }) {
       <View style={styles.secao}>
         <Text style={styles.secaoTitulo}>Dados da conta</Text>
         <CampoTexto
+          ref={nomeRef}
           label="Nome completo"
           icone="person-outline"
           placeholder="Seu nome"
           value={nome}
           onChangeText={setNome}
           erro={errosPerfil.nome}
+          autoCapitalize="words"
+          autoComplete="name"
         />
         <CampoTexto
+          ref={emailRef}
           label="E-mail"
           icone="mail-outline"
           placeholder="seuemail@exemplo.com"
@@ -126,6 +152,7 @@ export default function PerfilScreen({ navigation }) {
           onChangeText={setEmail}
           autoCapitalize="none"
           keyboardType="email-address"
+          autoComplete="email"
           erro={errosPerfil.email}
         />
         <Botao
@@ -139,33 +166,39 @@ export default function PerfilScreen({ navigation }) {
       <View style={styles.secao}>
         <Text style={styles.secaoTitulo}>Alterar senha</Text>
         <CampoTexto
+          ref={senhaAtualRef}
           label="Senha atual"
           icone="lock-closed-outline"
-          placeholder="••••••••"
+          placeholder="Sua senha de hoje"
           value={senhaAtual}
           onChangeText={setSenhaAtual}
           autoCapitalize="none"
           secureTextEntry
+          autoComplete="current-password"
           erro={errosSenha.senhaAtual}
         />
         <CampoTexto
+          ref={novaSenhaRef}
           label="Nova senha"
           icone="key-outline"
-          placeholder="••••••••"
+          placeholder="Pelo menos 6 caracteres"
           value={novaSenha}
           onChangeText={setNovaSenha}
           autoCapitalize="none"
           secureTextEntry
+          autoComplete="new-password"
           erro={errosSenha.novaSenha}
         />
         <CampoTexto
+          ref={confirmarNovaSenhaRef}
           label="Confirmar nova senha"
           icone="key-outline"
-          placeholder="••••••••"
+          placeholder="Repita a nova senha"
           value={confirmarNovaSenha}
           onChangeText={setConfirmarNovaSenha}
           autoCapitalize="none"
           secureTextEntry
+          autoComplete="new-password"
           erro={errosSenha.confirmarNovaSenha}
         />
         <Botao

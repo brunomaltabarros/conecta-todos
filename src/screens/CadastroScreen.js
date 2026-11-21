@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   View,
   Text,
-  TextInput,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
@@ -11,10 +10,17 @@ import {
 } from 'react-native';
 
 import { useAuth } from '../context/AuthContext';
-import { validarEmail, validarSenha, validarConfirmacaoSenha, validarCampoObrigatorio } from '../utils/validation';
+import {
+  validarEmail,
+  validarSenha,
+  validarConfirmacaoSenha,
+  validarCampoObrigatorio,
+} from '../utils/validation';
 import { colors, spacing, fontSizes, toque } from '../theme/theme';
 import Botao from '../components/Botao';
 import Logo from '../components/Logo';
+import CampoTexto from '../components/CampoTexto';
+import MensagemErro from '../components/MensagemErro';
 
 export default function CadastroScreen({ navigation }) {
   const { cadastrar } = useAuth();
@@ -25,15 +31,33 @@ export default function CadastroScreen({ navigation }) {
   const [erros, setErros] = useState({});
   const [enviando, setEnviando] = useState(false);
 
+  const nomeRef = useRef(null);
+  const emailRef = useRef(null);
+  const senhaRef = useRef(null);
+  const confirmarRef = useRef(null);
+
+  function focarPrimeiroErro(novosErros) {
+    const ordem = [
+      ['nome', nomeRef],
+      ['email', emailRef],
+      ['senha', senhaRef],
+      ['confirmarSenha', confirmarRef],
+    ];
+    const primeiro = ordem.find(([campo]) => novosErros[campo]);
+    if (primeiro) primeiro[1].current?.focus();
+  }
+
   async function handleCadastrar() {
     const novosErros = {};
     if (!validarCampoObrigatorio(nome)) novosErros.nome = 'Informe seu nome completo';
-    if (!validarEmail(email)) novosErros.email = 'Informe um e-mail válido';
+    if (!validarEmail(email)) novosErros.email = 'Informe um e-mail válido, como nome@exemplo.com';
     if (!validarSenha(senha)) novosErros.senha = 'A senha deve ter pelo menos 6 caracteres';
-    if (!validarConfirmacaoSenha(senha, confirmarSenha)) novosErros.confirmarSenha = 'As senhas não coincidem';
+    if (!validarConfirmacaoSenha(senha, confirmarSenha))
+      novosErros.confirmarSenha = 'As senhas não coincidem. Digite a mesma senha nos dois campos';
 
     if (Object.keys(novosErros).length > 0) {
       setErros(novosErros);
+      focarPrimeiroErro(novosErros);
       return;
     }
 
@@ -44,7 +68,9 @@ export default function CadastroScreen({ navigation }) {
     if (!resultado.ok) {
       setEnviando(false);
       if (resultado.erro === 'Este e-mail já está cadastrado') {
-        setErros({ email: resultado.erro });
+        const erroEmail = { email: 'Este e-mail já está cadastrado. Entre com ele ou use outro e-mail' };
+        setErros(erroEmail);
+        focarPrimeiroErro(erroEmail);
       } else {
         setErros({ geral: resultado.erro });
       }
@@ -52,71 +78,81 @@ export default function CadastroScreen({ navigation }) {
   }
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
+    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <View style={styles.header}>
         <Logo tamanho={44} variante="negativo" comTexto />
         <Text style={styles.subtitle}>Crie sua conta para começar</Text>
       </View>
 
-      <ScrollView style={styles.form} contentContainerStyle={{ paddingBottom: spacing.xl }}>
-        <Text style={styles.label}>Nome completo</Text>
-        <TextInput
-          style={[styles.input, erros.nome && styles.inputError]}
+      <ScrollView
+        style={styles.form}
+        contentContainerStyle={{ paddingBottom: spacing.xl }}
+        keyboardShouldPersistTaps="handled"
+      >
+        <CampoTexto
+          ref={nomeRef}
+          label="Nome completo"
+          icone="person-outline"
           placeholder="Seu nome"
           value={nome}
           onChangeText={setNome}
-          accessibilityLabel="Nome completo"
-          aria-invalid={erros.nome ? true : undefined}
+          erro={erros.nome}
+          autoCapitalize="words"
+          autoComplete="name"
+          returnKeyType="next"
+          onSubmitEditing={() => emailRef.current?.focus()}
         />
-        {erros.nome && <Text style={styles.erroTexto}>{erros.nome}</Text>}
 
-        <Text style={styles.label}>E-mail</Text>
-        <TextInput
-          style={[styles.input, erros.email && styles.inputError]}
+        <CampoTexto
+          ref={emailRef}
+          label="E-mail"
+          icone="mail-outline"
           placeholder="seuemail@exemplo.com"
           value={email}
           onChangeText={setEmail}
-          autoCapitalize="none"
+          erro={erros.email}
           keyboardType="email-address"
-          accessibilityLabel="E-mail"
-          aria-invalid={erros.email ? true : undefined}
+          autoCapitalize="none"
+          autoComplete="email"
+          returnKeyType="next"
+          onSubmitEditing={() => senhaRef.current?.focus()}
         />
-        {erros.email && <Text style={styles.erroTexto}>{erros.email}</Text>}
 
-        <Text style={styles.label}>Senha</Text>
-        <TextInput
-          style={[styles.input, erros.senha && styles.inputError]}
-          placeholder="••••••••"
+        <CampoTexto
+          ref={senhaRef}
+          label="Senha"
+          icone="lock-closed-outline"
+          placeholder="Pelo menos 6 caracteres"
           value={senha}
           onChangeText={setSenha}
+          erro={erros.senha}
+          autoCapitalize="none"
+          autoComplete="new-password"
           secureTextEntry
-          accessibilityLabel="Senha"
-          aria-invalid={erros.senha ? true : undefined}
+          returnKeyType="next"
+          onSubmitEditing={() => confirmarRef.current?.focus()}
         />
-        {erros.senha && <Text style={styles.erroTexto}>{erros.senha}</Text>}
 
-        <Text style={styles.label}>Confirmar senha</Text>
-        <TextInput
-          style={[styles.input, erros.confirmarSenha && styles.inputError]}
-          placeholder="••••••••"
+        <CampoTexto
+          ref={confirmarRef}
+          label="Confirmar senha"
+          icone="lock-closed-outline"
+          placeholder="Repita a senha"
           value={confirmarSenha}
           onChangeText={setConfirmarSenha}
+          erro={erros.confirmarSenha}
+          autoCapitalize="none"
+          autoComplete="new-password"
           secureTextEntry
-          accessibilityLabel="Confirmar senha"
-          aria-invalid={erros.confirmarSenha ? true : undefined}
+          returnKeyType="go"
+          onSubmitEditing={handleCadastrar}
         />
-        {erros.confirmarSenha && <Text style={styles.erroTexto}>{erros.confirmarSenha}</Text>}
 
-        {erros.geral && (
-          <Text style={styles.erroTexto} accessibilityLiveRegion="polite">
-            {erros.geral}
-          </Text>
-        )}
+        <MensagemErro style={styles.erroGeral}>{erros.geral}</MensagemErro>
 
-        <Botao titulo="Criar conta" onPress={handleCadastrar} carregando={enviando} />
+        <View style={styles.acao}>
+          <Botao titulo="Criar conta" onPress={handleCadastrar} carregando={enviando} />
+        </View>
 
         <TouchableOpacity
           onPress={() => navigation.navigate('Login')}
@@ -141,20 +177,10 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     padding: spacing.lg,
-    paddingTop: spacing.xl,
+    paddingTop: spacing.md,
   },
-  label: { fontSize: fontSizes.md, color: colors.text, marginBottom: spacing.xs, fontWeight: '600' },
-  input: {
-    backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 10,
-    padding: spacing.md,
-    marginBottom: spacing.sm,
-    fontSize: fontSizes.md,
-  },
-  inputError: { borderColor: colors.danger },
-  erroTexto: { color: colors.danger, fontSize: fontSizes.sm, marginBottom: spacing.sm },
+  erroGeral: { marginTop: spacing.md },
+  acao: { marginTop: spacing.lg },
   linkVoltar: {
     alignItems: 'center',
     justifyContent: 'center',

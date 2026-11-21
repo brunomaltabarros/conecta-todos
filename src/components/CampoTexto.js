@@ -1,20 +1,27 @@
-import React, { useId } from 'react';
+import React, { forwardRef, useId } from 'react';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, fontSizes, radius } from '../theme/theme';
+import MensagemErro from './MensagemErro';
 
-export default function CampoTexto({
-  label,
-  icone,
-  value,
-  onChangeText,
-  erro,
-  placeholder,
-  keyboardType = 'default',
-  autoCapitalize = 'sentences',
-  maxLength,
-  secureTextEntry = false,
-}) {
+const CampoTexto = forwardRef(function CampoTexto(
+  {
+    label,
+    icone,
+    value,
+    onChangeText,
+    erro,
+    placeholder,
+    keyboardType = 'default',
+    autoCapitalize = 'sentences',
+    maxLength,
+    secureTextEntry = false,
+    autoComplete,
+    returnKeyType,
+    onSubmitEditing,
+  },
+  ref,
+) {
   const id = useId();
   const idLabel = `${id}-label`;
   const idErro = `${id}-erro`;
@@ -27,6 +34,7 @@ export default function CampoTexto({
       <View style={[styles.inputWrapper, erro && styles.inputError]}>
         <Ionicons name={icone} size={18} color={colors.textLight} style={styles.inputIcone} />
         <TextInput
+          ref={ref}
           style={styles.input}
           placeholder={placeholder}
           placeholderTextColor={colors.textLight}
@@ -36,23 +44,30 @@ export default function CampoTexto({
           autoCapitalize={autoCapitalize}
           maxLength={maxLength}
           secureTextEntry={secureTextEntry}
+          autoComplete={autoComplete}
+          returnKeyType={returnKeyType}
+          onSubmitEditing={onSubmitEditing}
           accessibilityLabel={label}
           aria-labelledby={idLabel}
           aria-invalid={erro ? true : undefined}
           aria-describedby={erro ? idErro : undefined}
         />
       </View>
-      {erro && (
-        <Text nativeID={idErro} role="alert" style={styles.erroTexto}>
-          {erro}
-        </Text>
-      )}
+      <MensagemErro id={idErro}>{erro}</MensagemErro>
     </>
   );
-}
+});
+
+export default CampoTexto;
 
 const styles = StyleSheet.create({
-  label: { fontSize: fontSizes.md, fontWeight: '600', color: colors.text, marginTop: spacing.md, marginBottom: spacing.xs },
+  label: {
+    fontSize: fontSizes.md,
+    fontWeight: '600',
+    color: colors.text,
+    marginTop: spacing.md,
+    marginBottom: spacing.xs,
+  },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -64,6 +79,5 @@ const styles = StyleSheet.create({
   },
   inputIcone: { marginRight: spacing.sm },
   input: { flex: 1, paddingVertical: spacing.md, fontSize: fontSizes.md, color: colors.text },
-  inputError: { borderColor: colors.danger },
-  erroTexto: { color: colors.danger, fontSize: fontSizes.sm, marginTop: spacing.xs },
+  inputError: { borderColor: colors.danger, borderWidth: 2 },
 });

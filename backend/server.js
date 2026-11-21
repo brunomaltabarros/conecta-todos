@@ -32,7 +32,10 @@ db.exec(`
   )
 `);
 
-const colunas = db.prepare('PRAGMA table_info(agendamentos)').all().map((c) => c.name);
+const colunas = db
+  .prepare('PRAGMA table_info(agendamentos)')
+  .all()
+  .map((c) => c.name);
 if (!colunas.includes('horario')) {
   db.exec('ALTER TABLE agendamentos ADD COLUMN horario TEXT');
 }
@@ -70,7 +73,9 @@ function buscarPorEmail(email) {
 }
 
 function normalizar(email) {
-  return String(email || '').trim().toLowerCase();
+  return String(email || '')
+    .trim()
+    .toLowerCase();
 }
 
 app.post('/cadastro', (req, res) => {
@@ -112,9 +117,7 @@ app.post('/login', (req, res) => {
 });
 
 app.get('/perfil', autenticar, (req, res) => {
-  const registro = db
-    .prepare('SELECT id, nome, email FROM usuarios WHERE id = ?')
-    .get(req.usuarioId);
+  const registro = db.prepare('SELECT id, nome, email FROM usuarios WHERE id = ?').get(req.usuarioId);
   if (!registro) return res.status(404).json({ erro: 'Usuário não encontrado' });
   res.json({ usuario: registro });
 });
@@ -131,8 +134,11 @@ app.put('/perfil', autenticar, (req, res) => {
     return res.status(409).json({ erro: 'Já existe uma conta com esse e-mail' });
   }
 
-  db.prepare('UPDATE usuarios SET nome = ?, email = ? WHERE id = ?')
-    .run(nome.trim(), emailLimpo, req.usuarioId);
+  db.prepare('UPDATE usuarios SET nome = ?, email = ? WHERE id = ?').run(
+    nome.trim(),
+    emailLimpo,
+    req.usuarioId,
+  );
 
   res.json({ usuario: { id: req.usuarioId, nome: nome.trim(), email: emailLimpo } });
 });
@@ -155,8 +161,10 @@ app.put('/senha', autenticar, (req, res) => {
     return res.status(400).json({ erro: 'A nova senha precisa ser diferente da anterior' });
   }
 
-  db.prepare('UPDATE usuarios SET senha_hash = ? WHERE id = ?')
-    .run(bcrypt.hashSync(novaSenha, 10), req.usuarioId);
+  db.prepare('UPDATE usuarios SET senha_hash = ? WHERE id = ?').run(
+    bcrypt.hashSync(novaSenha, 10),
+    req.usuarioId,
+  );
 
   res.json({ ok: true });
 });
@@ -205,8 +213,10 @@ app.post('/recuperar-senha/confirmar', (req, res) => {
     return res.status(400).json({ erro: 'A nova senha precisa ser diferente da anterior' });
   }
 
-  db.prepare('UPDATE usuarios SET senha_hash = ? WHERE id = ?')
-    .run(bcrypt.hashSync(novaSenha, 10), registro.id);
+  db.prepare('UPDATE usuarios SET senha_hash = ? WHERE id = ?').run(
+    bcrypt.hashSync(novaSenha, 10),
+    registro.id,
+  );
   codigosDeRecuperacao.delete(emailLimpo);
 
   res.json({ ok: true });
@@ -257,10 +267,10 @@ function horariosOcupados(unidade, data) {
   return new Set(
     db
       .prepare(
-        "SELECT horario FROM agendamentos WHERE unidade = ? AND data = ? AND horario IS NOT NULL AND status IN ('confirmado', 'concluido')"
+        "SELECT horario FROM agendamentos WHERE unidade = ? AND data = ? AND horario IS NOT NULL AND status IN ('confirmado', 'concluido')",
       )
       .all(unidade, data)
-      .map((r) => r.horario)
+      .map((r) => r.horario),
   );
 }
 
@@ -275,7 +285,7 @@ function situacaoDoDia(unidade, data) {
 function posicaoNaFila(registro) {
   return db
     .prepare(
-      "SELECT COUNT(*) AS n FROM agendamentos WHERE status = 'espera' AND unidade = ? AND data = ? AND id <= ?"
+      "SELECT COUNT(*) AS n FROM agendamentos WHERE status = 'espera' AND unidade = ? AND data = ? AND id <= ?",
     )
     .get(registro.unidade, registro.data, registro.id).n;
 }
@@ -284,12 +294,14 @@ function promoverDaFila(unidade, data, horario) {
   if (!horario) return;
   const proximo = db
     .prepare(
-      "SELECT id FROM agendamentos WHERE status = 'espera' AND unidade = ? AND data = ? ORDER BY id LIMIT 1"
+      "SELECT id FROM agendamentos WHERE status = 'espera' AND unidade = ? AND data = ? ORDER BY id LIMIT 1",
     )
     .get(unidade, data);
   if (proximo) {
-    db.prepare("UPDATE agendamentos SET status = 'confirmado', horario = ? WHERE id = ?")
-      .run(horario, proximo.id);
+    db.prepare("UPDATE agendamentos SET status = 'confirmado', horario = ? WHERE id = ?").run(
+      horario,
+      proximo.id,
+    );
   }
 }
 
@@ -308,9 +320,7 @@ function paraCliente(registro) {
 }
 
 function buscarDoUsuario(id, usuarioId) {
-  return db
-    .prepare('SELECT * FROM agendamentos WHERE id = ? AND usuario_id = ?')
-    .get(Number(id), usuarioId);
+  return db.prepare('SELECT * FROM agendamentos WHERE id = ? AND usuario_id = ?').get(Number(id), usuarioId);
 }
 
 app.get('/agendamentos', autenticar, (req, res) => {
@@ -327,7 +337,7 @@ app.get('/ocupacao', autenticar, (req, res) => {
               SUM(status IN ('confirmado', 'concluido')) AS confirmados,
               SUM(status = 'espera') AS espera
          FROM agendamentos
-        GROUP BY unidade, data`
+        GROUP BY unidade, data`,
     )
     .all();
   res.json({ ocupacao });
@@ -345,6 +355,21 @@ app.post('/agendamentos', autenticar, (req, res) => {
   const { servico, detalhe, unidade, data, horario, listaEspera } = req.body;
   if (!servico || !unidade || !data) {
     return res.status(400).json({ erro: 'Informe serviço, unidade e data' });
+  }
+
+  const repetido = db
+    .prepare(
+      "SELECT unidade, horario, status FROM agendamentos WHERE usuario_id = ? AND servico = ? AND data = ? AND status IN ('confirmado', 'espera')",
+    )
+    .get(req.usuarioId, servico, data);
+  if (repetido) {
+    const onde =
+      repetido.status === 'espera'
+        ? `na lista de espera de ${repetido.unidade}`
+        : `em ${repetido.unidade} às ${repetido.horario}`;
+    return res.status(409).json({
+      erro: `Você já tem um agendamento de ${servico} para ${data}, ${onde}. Para trocar, cancele o atual em Meus Agendamentos.`,
+    });
   }
 
   const situacao = situacaoDoDia(unidade, data);
@@ -382,7 +407,7 @@ app.post('/agendamentos', autenticar, (req, res) => {
 
   const info = db
     .prepare(
-      'INSERT INTO agendamentos (usuario_id, servico, detalhe, unidade, data, horario, status) VALUES (?, ?, ?, ?, ?, ?, ?)'
+      'INSERT INTO agendamentos (usuario_id, servico, detalhe, unidade, data, horario, status) VALUES (?, ?, ?, ?, ?, ?, ?)',
     )
     .run(req.usuarioId, servico, detalhe || '', unidade, data, horarioGravado, status);
 
@@ -416,8 +441,10 @@ app.put('/agendamentos/:id/concluir', autenticar, (req, res) => {
   const notaValida = Number.isInteger(nota) && nota >= 0 && nota <= 5 ? nota : 0;
   const feedback = JSON.stringify({ nota: notaValida, comentario: String(comentario || '').trim() });
 
-  db.prepare("UPDATE agendamentos SET status = 'concluido', feedback = ? WHERE id = ?")
-    .run(feedback, registro.id);
+  db.prepare("UPDATE agendamentos SET status = 'concluido', feedback = ? WHERE id = ?").run(
+    feedback,
+    registro.id,
+  );
 
   res.json({ agendamento: paraCliente(buscarDoUsuario(registro.id, req.usuarioId)) });
 });

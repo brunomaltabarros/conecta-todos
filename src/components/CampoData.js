@@ -4,6 +4,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, fontSizes, radius, toque } from '../theme/theme';
 import { parseDataBr } from '../utils/validation';
+import MensagemErro from './MensagemErro';
 
 function formatarDataExibicao(date) {
   const dia = String(date.getDate()).padStart(2, '0');
@@ -40,14 +41,14 @@ export default function CampoData({ data, setData, erro }) {
         onPress={() => setMostrarPicker(true)}
         activeOpacity={0.7}
         accessibilityRole="button"
-        accessibilityLabel={data ? `Data escolhida: ${data}. Toque para trocar.` : 'Escolher a data do atendimento'}
+        accessibilityLabel={
+          data ? `Data escolhida: ${data}. Toque para trocar.` : 'Escolher a data do atendimento'
+        }
       >
         <Ionicons name="calendar-outline" size={18} color={colors.textLight} style={styles.inputIcone} />
-        <Text style={[styles.textoData, !data && styles.placeholder]}>
-          {data || 'Selecionar data'}
-        </Text>
+        <Text style={[styles.textoData, !data && styles.placeholder]}>{data || 'Selecionar data'}</Text>
       </TouchableOpacity>
-      {erro && <Text style={styles.erroTexto}>{erro}</Text>}
+      <MensagemErro>{erro}</MensagemErro>
 
       {mostrarPicker && (
         <DateTimePicker
@@ -75,7 +76,13 @@ export default function CampoData({ data, setData, erro }) {
 }
 
 const styles = StyleSheet.create({
-  label: { fontSize: fontSizes.md, fontWeight: '600', color: colors.text, marginTop: spacing.md, marginBottom: spacing.xs },
+  label: {
+    fontSize: fontSizes.md,
+    fontWeight: '600',
+    color: colors.text,
+    marginTop: spacing.md,
+    marginBottom: spacing.xs,
+  },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -91,7 +98,6 @@ const styles = StyleSheet.create({
   textoData: { fontSize: fontSizes.md, color: colors.text },
   placeholder: { color: colors.textLight },
   inputError: { borderColor: colors.danger },
-  erroTexto: { color: colors.danger, fontSize: fontSizes.sm, marginTop: spacing.xs },
   botaoConfirmar: {
     alignSelf: 'flex-end',
     alignItems: 'center',
