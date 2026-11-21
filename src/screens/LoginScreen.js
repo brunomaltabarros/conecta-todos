@@ -16,6 +16,7 @@ import Botao from '../components/Botao';
 import Logo from '../components/Logo';
 import CampoTexto from '../components/CampoTexto';
 import MensagemErro from '../components/MensagemErro';
+import { VERSAO_LOGIN } from '../config/testeAB';
 
 export default function LoginScreen({ navigation }) {
   const { login } = useAuth();
@@ -23,6 +24,12 @@ export default function LoginScreen({ navigation }) {
   const [senha, setSenha] = useState('');
   const [erros, setErros] = useState({});
   const [enviando, setEnviando] = useState(false);
+  const [mostrarSenha, setMostrarSenha] = useState(false);
+
+  // Teste A/B: A = original, B = botão "Mostrar senha" + dica + botão com texto mais claro
+  const versaoB = VERSAO_LOGIN === 'B';
+  const inicio = useRef(Date.now());
+  const tentativasComErro = useRef(0);
 
   const emailRef = useRef(null);
   const senhaRef = useRef(null);
@@ -33,6 +40,7 @@ export default function LoginScreen({ navigation }) {
     if (!validarSenha(senha)) novosErros.senha = 'A senha deve ter pelo menos 6 caracteres';
 
     if (Object.keys(novosErros).length > 0) {
+      tentativasComErro.current += 1;
       setErros(novosErros);
       if (novosErros.email) emailRef.current?.focus();
       else senhaRef.current?.focus();
@@ -44,9 +52,14 @@ export default function LoginScreen({ navigation }) {
 
     const resultado = await login(email, senha);
     if (!resultado.ok) {
+      tentativasComErro.current += 1;
       setEnviando(false);
       setErros({ geral: resultado.erro });
+      return;
     }
+
+    const segundos = ((Date.now() - inicio.current) / 1000).toFixed(1);
+    console.log(`[teste A/B] versao=${VERSAO_LOGIN} tempo=${segundos}s erros=${tentativasComErro.current}`);
   }
 
   return (
@@ -77,21 +90,36 @@ export default function LoginScreen({ navigation }) {
             ref={senhaRef}
             label="Senha"
             icone="lock-closed-outline"
-            placeholder="Sua senha"
+            placeholder={versaoB ? 'Digite sua senha (mínimo 6 caracteres)' : 'Sua senha'}
             value={senha}
             onChangeText={setSenha}
             erro={erros.senha}
             autoCapitalize="none"
             autoComplete="current-password"
-            secureTextEntry
+            secureTextEntry={versaoB ? !mostrarSenha : true}
             returnKeyType="go"
             onSubmitEditing={handleLogin}
           />
 
+          {versaoB && (
+            <TouchableOpacity
+              onPress={() => setMostrarSenha((v) => !v)}
+              style={styles.mostrar}
+              accessibilityRole="button"
+              accessibilityLabel={mostrarSenha ? 'Esconder senha' : 'Mostrar senha'}
+            >
+              <Text style={styles.linkTexto}>{mostrarSenha ? 'Esconder senha' : 'Mostrar senha'}</Text>
+            </TouchableOpacity>
+          )}
+
           <MensagemErro style={styles.erroGeral}>{erros.geral}</MensagemErro>
 
           <View style={styles.acao}>
-            <Botao titulo="Entrar" onPress={handleLogin} carregando={enviando} />
+            <Botao
+              titulo={versaoB ? 'Entrar na minha conta' : 'Entrar'}
+              onPress={handleLogin}
+              carregando={enviando}
+            />
           </View>
 
           <TouchableOpacity
@@ -130,6 +158,7 @@ const styles = StyleSheet.create({
     paddingTop: spacing.md,
   },
   erroGeral: { marginTop: spacing.md },
+  mostrar: { alignSelf: 'flex-start', justifyContent: 'center', minHeight: toque.minimo },
   acao: { marginTop: spacing.lg },
   linkSenha: {
     alignItems: 'center',
